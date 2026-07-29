@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Domain layer: the innermost circle of the Clean Architecture.
+    It has NO project references and NO framework dependencies on purpose -
+    entities, value objects, domain events and repository contracts only.
+  -->
+
+</Project>

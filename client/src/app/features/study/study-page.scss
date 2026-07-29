@@ -1,0 +1,55 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 18px;
+}
+
+.topbar lh-progress-bar {
+  flex: 1;
+  min-width: 0;
+}
+
+.counter {
+  flex: none;
+  font-size: 13px;
+  font-weight: 800;
+  color: #8a827a;
+  white-space: nowrap;
+}
+
+.grade-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.dont,
+.know {
+  flex: 1;
+  border: none;
+  border-radius: var(--lh-radius-lg);
+  padding: 16px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dont {
+  color: var(--lh-red);
+  background: var(--lh-red-soft);
+}
+
+.know {
+  color: var(--lh-green-deep);
+  background: var(--lh-green-soft);
+}
+
+.dont:disabled,
+.know:disabled {
+  opacity: 0.55;
+}

@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LingoHop.Api</name>
+    </assembly>
+    <members>
+        <member name="T:LingoHop.Api.Authentication.HttpCurrentTelegramUser">
+            <summary>
+            Adapter that exposes the authenticated caller to the Application layer without leaking
+            <c>HttpContext</c> into it.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Authentication.HttpCurrentTelegramUser.#ctor(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Adapter that exposes the authenticated caller to the Application layer without leaking
+            <c>HttpContext</c> into it.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Api.Authentication.TelegramAuthentication">
+            <summary>Constants for the Telegram Mini App authentication scheme.</summary>
+        </member>
+        <member name="F:LingoHop.Api.Authentication.TelegramAuthentication.SchemeName">
+            <summary>Authentication scheme name.</summary>
+        </member>
+        <member name="F:LingoHop.Api.Authentication.TelegramAuthentication.AuthorizationPrefix">
+            <summary>
+            Preferred transport: <c>Authorization: tma &lt;initData&gt;</c>, the convention Telegram
+            documents for Mini App back ends.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Api.Authentication.TelegramAuthentication.InitDataHeader">
+            <summary>Alternative header for clients that cannot set <c>Authorization</c>.</summary>
+        </member>
+        <member name="F:LingoHop.Api.Authentication.TelegramAuthentication.DevelopmentUserHeader">
+            <summary>
+            Development-only override that selects which fake learner a request belongs to,
+            so several users can be simulated without a bot.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Api.Authentication.TelegramAuthentication.TelegramIdClaim">
+            <summary>Claim holding the numeric Telegram user id.</summary>
+        </member>
+        <member name="T:LingoHop.Api.Authentication.TelegramAuthenticationHandler">
+            <summary>
+            Authenticates a request by verifying the Telegram Mini App <c>initData</c> payload it carries.
+            <para>
+            There are no passwords and no sessions: every call from the mini app re-presents the signed
+            launch payload, and the signature is what proves the caller's identity.
+            </para>
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Authentication.TelegramAuthenticationHandler.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions},Microsoft.Extensions.Logging.ILoggerFactory,System.Text.Encodings.Web.UrlEncoder,LingoHop.Application.Abstractions.Security.ITelegramInitDataValidator,Microsoft.Extensions.Options.IOptions{LingoHop.Infrastructure.Telegram.TelegramOptions},Microsoft.Extensions.Hosting.IHostEnvironment)">
+            <summary>
+            Authenticates a request by verifying the Telegram Mini App <c>initData</c> payload it carries.
+            <para>
+            There are no passwords and no sessions: every call from the mini app re-presents the signed
+            launch payload, and the signature is what proves the caller's identity.
+            </para>
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Authentication.TelegramAuthenticationHandler.IsDevelopmentFallbackAllowed">
+            <summary>
+            The fallback is opt-in through configuration <em>and</em> restricted to the Development
+            environment, so a misconfigured production deployment cannot accept unsigned requests.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Api.Controllers.ApiControllerBase">
+            <summary>
+            Shared plumbing for the controllers: authorisation and the single place where an
+            Application-layer <see cref="T:LingoHop.Application.Common.Result"/> becomes an HTTP response.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.ApiControllerBase.Failure(LingoHop.Application.Common.Error)">
+            <summary>Maps a failed result onto the matching ProblemDetails response.</summary>
+        </member>
+        <member name="T:LingoHop.Api.Controllers.CardsController">
+            <summary>Cards inside a deck. Nested under the deck because a card never exists on its own.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.CardsController.#ctor(LingoHop.Application.Decks.UseCases.AddCardUseCase,LingoHop.Application.Decks.UseCases.UpdateCardUseCase,LingoHop.Application.Decks.UseCases.DeleteCardUseCase)">
+            <summary>Cards inside a deck. Nested under the deck because a card never exists on its own.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.CardsController.Add(System.Guid,LingoHop.Application.Decks.Dtos.CardDraft,System.Threading.CancellationToken)">
+            <summary>Adds a card. The word must not already exist in the deck.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.CardsController.Update(System.Guid,System.Guid,LingoHop.Application.Decks.Dtos.CardDraft,System.Threading.CancellationToken)">
+            <summary>Edits a card's text. Mastery counters are kept.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.CardsController.Delete(System.Guid,System.Guid,System.Threading.CancellationToken)">
+            <summary>Removes a card from the deck.</summary>
+        </member>
+        <member name="T:LingoHop.Api.Controllers.DecksController">
+            <summary>Decks owned by the current learner.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.#ctor(LingoHop.Application.Decks.UseCases.ListDecksUseCase,LingoHop.Application.Decks.UseCases.GetDeckUseCase,LingoHop.Application.Decks.UseCases.CreateDeckUseCase,LingoHop.Application.Decks.UseCases.UpdateDeckUseCase,LingoHop.Application.Decks.UseCases.DeleteDeckUseCase,LingoHop.Application.Decks.UseCases.ResetDeckProgressUseCase)">
+            <summary>Decks owned by the current learner.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.List(System.Threading.CancellationToken)">
+            <summary>All decks of the current learner, newest first.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.Get(System.Guid,System.Threading.CancellationToken)">
+            <summary>A single deck with all of its cards.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.Create(LingoHop.Application.Decks.UseCases.CreateDeckCommand,System.Threading.CancellationToken)">
+            <summary>Creates a deck, optionally with its first cards in the same call.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.Update(System.Guid,LingoHop.Application.Decks.UseCases.UpdateDeckCommand,System.Threading.CancellationToken)">
+            <summary>Renames a deck and/or changes its emoji.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.Delete(System.Guid,System.Threading.CancellationToken)">
+            <summary>Deletes a deck with its cards and study history.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.DecksController.ResetProgress(System.Guid,System.Threading.CancellationToken)">
+            <summary>Clears every card's mastery counters so the deck can be learned again.</summary>
+        </member>
+        <member name="T:LingoHop.Api.Controllers.StudySessionsController">
+            <summary>
+            Lessons: the "know / don't know" pass through a deck that drives the progress bar,
+            the XP reward and the streak.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.StudySessionsController.#ctor(LingoHop.Application.Study.UseCases.StartStudySessionUseCase,LingoHop.Application.Study.UseCases.GetStudySessionUseCase,LingoHop.Application.Study.UseCases.GradeCardUseCase,LingoHop.Application.Study.UseCases.CompleteStudySessionUseCase,LingoHop.Application.Study.UseCases.AbandonStudySessionUseCase)">
+            <summary>
+            Lessons: the "know / don't know" pass through a deck that drives the progress bar,
+            the XP reward and the streak.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.StudySessionsController.Start(LingoHop.Application.Study.UseCases.StartStudySessionCommand,System.Threading.CancellationToken)">
+            <summary>
+            Starts a lesson for a deck, or returns the learner's unfinished lesson for that deck
+            so a closed mini app can pick up where it left off.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.StudySessionsController.Get(System.Guid,System.Threading.CancellationToken)">
+            <summary>Reads a lesson back, including the grades given so far.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.StudySessionsController.Grade(System.Guid,LingoHop.Application.Study.UseCases.GradeCardCommand,System.Threading.CancellationToken)">
+            <summary>
+            Records "Know" or "Don't know" for one card. Grading the last card in the queue finishes
+            the lesson, and the response then carries the XP, the new streak and the daily goal state.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.StudySessionsController.Complete(System.Guid,System.Threading.CancellationToken)">
+            <summary>Finishes a lesson early, keeping the reward for the cards already answered.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.StudySessionsController.Abandon(System.Guid,System.Threading.CancellationToken)">
+            <summary>Drops an unfinished lesson without a reward.</summary>
+        </member>
+        <member name="T:LingoHop.Api.Controllers.UsersController">
+            <summary>The learner behind the current Telegram launch payload.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.UsersController.#ctor(LingoHop.Application.Users.UseCases.GetLearnerProfileUseCase,LingoHop.Application.Users.UseCases.UpdateDailyGoalUseCase)">
+            <summary>The learner behind the current Telegram launch payload.</summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.UsersController.GetMe(System.Threading.CancellationToken)">
+            <summary>
+            Returns the current learner, registering them on the first launch of the mini app.
+            This is the call the client makes on start-up.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.Controllers.UsersController.UpdateDailyGoal(LingoHop.Application.Users.UseCases.UpdateDailyGoalCommand,System.Threading.CancellationToken)">
+            <summary>Changes how many cards a day count as the daily goal.</summary>
+        </member>
+        <member name="T:LingoHop.Api.ErrorHandling.DomainExceptionHandler">
+            <summary>
+            Turns a broken domain invariant into a 400 ProblemDetails response. Invariant violations
+            are programming/user-input errors the Application layer deliberately does not pre-check,
+            so this is the single place they become HTTP.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Api.ErrorHandling.DomainExceptionHandler.#ctor(Microsoft.AspNetCore.Http.IProblemDetailsService)">
+            <summary>
+            Turns a broken domain invariant into a 400 ProblemDetails response. Invariant violations
+            are programming/user-input errors the Application layer deliberately does not pre-check,
+            so this is the single place they become HTTP.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Api.OpenApi.TelegramSecuritySchemeTransformer">
+            <summary>
+            Declares the Telegram launch payload as the API's security scheme so Swagger UI offers an
+            Authorize box. Paste <c>tma &lt;initData&gt;</c> into it to call the API as a real user.
+            </summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
+            <summary>
+            Generates a documentation comment ID for a type.
+            Example: T:Namespace.Outer+Inner`1 becomes T:Namespace.Outer.Inner`1
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.PropertyInfo)">
+            <summary>
+            Generates a documentation comment ID for a property.
+            Example: P:Namespace.ContainingType.PropertyName or for an indexer P:Namespace.ContainingType.Item(System.Int32)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type,System.String)">
+            <summary>
+            Generates a documentation comment ID for a property given its container type and property name.
+            Example: P:Namespace.ContainingType.PropertyName
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.MethodInfo)">
+            <summary>
+            Generates a documentation comment ID for a method (or constructor).
+            For example:
+              M:Namespace.ContainingType.MethodName(ParamType1,ParamType2)~ReturnType
+              M:Namespace.ContainingType.#ctor(ParamType)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.GetTypeDocId(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Generates a documentation ID string for a type.
+            This method handles nested types (replacing '+' with '.'),
+            generic types, arrays, pointers, by-ref types, and generic parameters.
+            The <paramref name="includeGenericArguments"/> flag controls whether
+            constructed generic type arguments are emitted, while <paramref name="omitGenericArity"/>
+            controls whether the generic arity marker (e.g. "`1") is appended.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.NormalizeDocId(System.String)">
+            <summary>
+            Normalizes a documentation comment ID to match the compiler-style format.
+            Strips the return type suffix for ordinary methods but retains it for conversion operators.
+            </summary>
+            <param name="docId">The documentation comment ID to normalize.</param>
+            <returns>The normalized documentation comment ID.</returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,24 @@
+@if (store.isLoading()) {
+  <lh-spinner label="Loading decks" />
+} @else if (store.isEmpty()) {
+  <lh-empty-state
+    icon="🗂️"
+    title="No decks yet"
+    message="Create a deck, fill it with words, then test yourself card by card."
+    actionLabel="Create a deck"
+    (action)="create()"
+  />
+} @else {
+  <p class="summary">
+    {{ store.decks().length }} {{ store.decks().length === 1 ? 'deck' : 'decks' }} ·
+    {{ store.totalCards() }} {{ store.totalCards() === 1 ? 'word' : 'words' }}
+  </p>
+
+  <div class="list">
+    @for (deck of store.decks(); track deck.id) {
+      <lh-deck-tile [deck]="deck" (select)="open($event)" />
+    }
+  </div>
+
+  <button type="button" class="create" (click)="create()">+ New deck</button>
+}

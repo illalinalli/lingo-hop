@@ -1,0 +1,320 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LingoHop.Domain</name>
+    </assembly>
+    <members>
+        <member name="T:LingoHop.Domain.Common.AggregateRoot">
+            <summary>
+            Consistency boundary. Only aggregate roots are loaded and saved through repositories;
+            everything else is reached through the root.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Common.AggregateRoot.#ctor">
+            <summary>Constructor used by EF Core materialisation only.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Common.DomainException">
+            <summary>
+            Thrown when an attempt is made to put the domain model into an invalid state.
+            The API layer translates it into a 400 ProblemDetails response.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Common.DomainException.Require(System.Boolean,System.String)">
+            <summary>Guards an invariant, throwing when <paramref name="condition"/> does not hold.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Common.Entity">
+            <summary>
+            Base class for domain entities: identity-based equality, immutable identifier.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Common.Entity.#ctor">
+            <summary>Constructor used by EF Core materialisation only.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Common.IDomainEvent">
+            <summary>
+            Marker for something meaningful that happened inside an aggregate.
+            Events are dispatched by the Application layer inside the same transaction
+            as the change that raised them.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.Card">
+            <summary>
+            A flashcard. An entity inside the <see cref="T:LingoHop.Domain.Decks.Deck"/> aggregate: it is never loaded or
+            mutated on its own, which is why the constructor and mutators are <c>internal</c> -
+            all changes go through the deck so invariants (unique terms) stay enforceable.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.CardMastery">
+            <summary>
+            How well a single card is known. This is the minimal-viable spaced repetition:
+            a card becomes "learned" after <see cref="F:LingoHop.Domain.Decks.CardMastery.StreakToLearn"/> consecutive "I know it"
+            answers and drops back the moment the learner misses it.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Domain.Decks.CardMastery.StreakToLearn">
+            <summary>Consecutive correct answers needed before a card counts as learned.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Decks.CardMastery.Accuracy">
+            <summary>Share of correct answers, 0..1.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Decks.CardMastery.SessionPriority">
+            <summary>
+            Priority used when building a session: new cards first, then the weakest ones.
+            Lower value means "show me sooner".
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.Deck">
+            <summary>
+            Aggregate root for a set of flashcards owned by one learner.
+            The deck is the consistency boundary for its cards: uniqueness of terms and the
+            per-card mastery counters can only be changed through this root.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Domain.Decks.Deck.MaxCards">
+            <summary>Upper bound that keeps a single aggregate small enough to load in one go.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Decks.Deck.Completion">
+            <summary>Share of learned cards, 0..1 - drives the green progress bar on the deck tile.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Decks.Deck.RegisterReview(System.Guid,System.Boolean,System.DateTimeOffset)">
+            <summary>Applies a graded answer to the card's mastery counters.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Decks.Deck.ResetProgress">
+            <summary>Clears all mastery counters so the deck can be learned from scratch.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Decks.Deck.SelectCardsForStudy(System.Int32,System.Func{System.Collections.Generic.IReadOnlyList{LingoHop.Domain.Decks.Card},System.Collections.Generic.IReadOnlyList{LingoHop.Domain.Decks.Card}})">
+            <summary>
+            Picks the cards for the next session. The ordering policy belongs to the domain
+            (unseen cards first, then the shakiest ones, learned cards last), while the
+            randomness inside each group is supplied by the caller so the domain stays testable.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.DeckIcon">
+            <summary>
+            Short emoji badge rendered on the deck tile. Kept as a value object rather than a raw
+            string so the length limit lives in one place.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Domain.Decks.DeckIcon.MaxLength">
+            <summary>Emoji can be several code points long (skin tones, ZWJ sequences).</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.DeckTitle">
+            <summary>Human readable name of a deck, e.g. "Café basics".</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.ExampleSentence">
+            <summary>Optional usage example shown in italics on the back of a card.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Decks.ExampleSentence.CreateOrNull(System.String)">
+            <summary>Returns <c>null</c> for blank input - an example is optional.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.IDeckRepository">
+            <summary>Persistence contract for the <see cref="T:LingoHop.Domain.Decks.Deck"/> aggregate.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Decks.IDeckRepository.FindByIdAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>Loads a deck together with its cards.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Decks.IDeckRepository.ListByOwnerAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>All decks owned by a user, newest first, cards included.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.PartOfSpeech">
+            <summary>Grammatical tag rendered as the pink chip above the word.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.Term">
+            <summary>
+            The front of a card - the word being learned. Terms are unique within a deck,
+            compared case-insensitively so "Bill" and "bill" cannot both be added.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Decks.Translation">
+            <summary>The back of a card - the meaning revealed after the flip.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.Events.CardReviewedDomainEvent">
+            <summary>
+            Raised by <see cref="T:LingoHop.Domain.Study.StudySession"/> when a card is graded. The Deck aggregate lives
+            behind its own boundary, so its mastery counters are updated by a handler reacting to
+            this event rather than by the session reaching across aggregates.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.Events.CardReviewedDomainEvent.#ctor(System.Guid,System.Guid,System.Guid,System.Boolean,System.DateTimeOffset)">
+            <summary>
+            Raised by <see cref="T:LingoHop.Domain.Study.StudySession"/> when a card is graded. The Deck aggregate lives
+            behind its own boundary, so its mastery counters are updated by a handler reacting to
+            this event rather than by the session reaching across aggregates.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.Events.StudySessionCompletedDomainEvent">
+            <summary>
+            Raised when a lesson finishes. A handler applies the reward to the User aggregate
+            (XP, streak, daily goal) inside the same transaction.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.Events.StudySessionCompletedDomainEvent.#ctor(System.Guid,System.Guid,System.Guid,System.Int32,System.Int32,System.Int32,System.Int32,System.DateTimeOffset)">
+            <summary>
+            Raised when a lesson finishes. A handler applies the reward to the User aggregate
+            (XP, streak, daily goal) inside the same transaction.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.IStudySessionRepository">
+            <summary>Persistence contract for the <see cref="T:LingoHop.Domain.Study.StudySession"/> aggregate.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.IStudySessionRepository.FindByIdAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>Loads a session together with its queued cards.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.IStudySessionRepository.FindActiveAsync(System.Guid,System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            The learner's unfinished session for a deck, if any - lets the mini app resume a
+            lesson that was closed mid-way instead of starting a duplicate one.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.SessionCard">
+            <summary>
+            One slot in a session queue: which card, in which position, and how it was graded.
+            Entity inside the <see cref="T:LingoHop.Domain.Study.StudySession"/> aggregate.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.SessionCard.CardId">
+            <summary>Identifier of the <c>Card</c> in the Deck aggregate.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.SessionCard.Position">
+            <summary>Zero-based position in the queue.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.SessionCard.Known">
+            <summary><c>null</c> until graded, then <c>true</c> for "Know" and <c>false</c> for "Don't know".</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.StudyRewardPolicy">
+            <summary>
+            The single place that decides how much XP a lesson is worth.
+            Kept as an explicit policy so the reward curve is easy to find and re-tune.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Domain.Study.StudyRewardPolicy.ExperiencePerAnsweredCard">
+            <summary>XP for showing up: awarded for every answered card, right or wrong.</summary>
+        </member>
+        <member name="F:LingoHop.Domain.Study.StudyRewardPolicy.ExperienceBonusPerKnownCard">
+            <summary>Extra XP for each card the learner actually knew.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.StudySession">
+            <summary>
+            Aggregate root for one pass through a deck: a fixed, ordered queue of cards plus the
+            grade the learner gave each of them. Fixing the queue up front is what makes the
+            progress bar meaningful and lets an interrupted lesson be resumed.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.StudySession.ExperienceEarned">
+            <summary>XP granted at completion; 0 while the session is running.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.StudySession.Cards">
+            <summary>The queued cards. Backed directly by the aggregate's collection.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.StudySession.Queue">
+            <summary>The queue in presentation order.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.StudySession.Progress">
+            <summary>Fraction of the queue already graded, 0..1 - drives the top progress bar.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Study.StudySession.CurrentCard">
+            <summary>Next card to show, or <c>null</c> when the queue is exhausted.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.StudySession.Grade(System.Guid,System.Boolean,System.DateTimeOffset)">
+            <summary>
+            Grades a card ("Know" / "Don't know"). Completes the session automatically once the
+            last card in the queue has been answered.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.StudySession.Complete(System.DateTimeOffset)">
+            <summary>Finishes the lesson early, keeping the reward for what was answered.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Study.StudySession.Abandon(System.DateTimeOffset)">
+            <summary>Drops the lesson without a reward - used when the learner walks away.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Study.StudySessionStatus">
+            <summary>Lifecycle of a single "Start today's lesson" run.</summary>
+        </member>
+        <member name="F:LingoHop.Domain.Study.StudySessionStatus.Completed">
+            <summary>Finished normally - XP and streak have been awarded.</summary>
+        </member>
+        <member name="F:LingoHop.Domain.Study.StudySessionStatus.Abandoned">
+            <summary>Left before answering anything meaningful - no reward.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.DailyProgress">
+            <summary>
+            Cards reviewed on a single calendar day - backs the "Daily goal completed" badge.
+            Rolls over automatically the first time activity is recorded on a new day.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Users.DailyProgress.CardsReviewedOn(System.DateOnly)">
+            <summary>Cards reviewed on <paramref name="today"/>; 0 once the stored day is stale.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.ExperiencePoints">
+            <summary>
+            Accumulated XP. Levels are derived, never stored, so the curve can be re-tuned freely.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Domain.Users.ExperiencePoints.PointsPerLevel">
+            <summary>XP required to advance one level.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Users.ExperiencePoints.Level">
+            <summary>Level shown as "Level 4" in the header; starts at 1.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Users.ExperiencePoints.PointsIntoLevel">
+            <summary>XP collected inside the current level.</summary>
+        </member>
+        <member name="P:LingoHop.Domain.Users.ExperiencePoints.LevelProgress">
+            <summary>How far the user is through the current level, 0..1.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.IUserRepository">
+            <summary>
+            Persistence contract for the <see cref="T:LingoHop.Domain.Users.User"/> aggregate.
+            Declared in the Domain layer, implemented by Infrastructure (dependency inversion).
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.StudyStreak">
+            <summary>
+            The "🔥 7" counter from the design: consecutive calendar days with at least one finished session.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Users.StudyStreak.Register(System.DateOnly)">
+            <summary>
+            Records study activity on <paramref name="today"/> and returns the resulting streak.
+            Studying twice on the same day does not advance it; skipping a day resets it to 1.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Domain.Users.StudyStreak.CurrentOn(System.DateOnly)">
+            <summary>The streak as it should be displayed on <paramref name="today"/>: a missed day shows 0.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.TelegramProfile">
+            <summary>
+            Snapshot of the display data Telegram hands us in <c>initData</c>.
+            Refreshed on every launch because the user can rename themselves at any time.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Domain.Users.TelegramProfile.DisplayName">
+            <summary>Name rendered in the greeting header of the mini app.</summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.TelegramUserId">
+            <summary>
+            Identity of a Telegram account. This is the only identifier the mini app can prove,
+            so it is the natural key that links a Telegram user to a <see cref="T:LingoHop.Domain.Users.User"/> aggregate.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Domain.Users.User">
+            <summary>
+            Aggregate root for a learner. Owns everything that is global to the person:
+            their Telegram identity, XP, streak and daily goal. Decks and sessions are
+            separate aggregates that reference this one by <see cref="P:LingoHop.Domain.Common.Entity.Id"/>.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Domain.Users.User.DefaultDailyGoalCards">
+            <summary>Cards per day the mini app asks for out of the box.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Users.User.RefreshProfile(LingoHop.Domain.Users.TelegramProfile)">
+            <summary>Refreshes the cached Telegram display data. Idempotent.</summary>
+        </member>
+        <member name="M:LingoHop.Domain.Users.User.RegisterCompletedSession(System.Int32,System.Int32,System.DateOnly)">
+            <summary>
+            Applied when a study session is completed: awards XP, advances the streak
+            and adds to today's card count.
+            </summary>
+        </member>
+    </members>
+</doc>

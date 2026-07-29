@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/server/">
+    <Project Path="server/LingoHop.Api/LingoHop.Api.csproj" />
+    <Project Path="server/LingoHop.Application/LingoHop.Application.csproj" />
+    <Project Path="server/LingoHop.Domain/LingoHop.Domain.csproj" />
+    <Project Path="server/LingoHop.Infrastructure/LingoHop.Infrastructure.csproj" />
+  </Folder>
+</Solution>

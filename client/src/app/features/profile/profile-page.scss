@@ -1,0 +1,128 @@
+.hero {
+  background: linear-gradient(170deg, #eef4ec, #f2efe9);
+  border-radius: var(--lh-radius-xl);
+  padding: 20px 18px;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--lh-ink);
+}
+
+.handle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lh-muted);
+  margin-top: 2px;
+}
+
+.level-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 18px 0 7px;
+}
+
+.level {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--lh-ink);
+}
+
+.xp {
+  font-size: 13px;
+  font-weight: 800;
+  color: #7a7069;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stat {
+  background: var(--lh-surface);
+  border-radius: var(--lh-radius-lg);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--lh-shadow-card);
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--lh-ink);
+}
+
+.stat-label {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--lh-muted);
+}
+
+.card {
+  margin-top: 16px;
+  background: var(--lh-surface);
+  border-radius: var(--lh-radius-lg);
+  padding: 18px;
+  box-shadow: var(--lh-shadow-card);
+}
+
+.card-title {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--lh-ink);
+}
+
+.card-text {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lh-muted);
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.chip {
+  flex: 1;
+  border: 2px solid var(--lh-line);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-surface);
+  padding: 12px 0;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--lh-ink-soft);
+}
+
+.chip.selected {
+  border-color: var(--lh-green);
+  background: var(--lh-green-soft);
+  color: var(--lh-green-deep);
+}
+
+.chip:disabled {
+  opacity: 0.6;
+}
+
+.done {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  background: var(--lh-green-soft);
+  border-radius: var(--lh-radius-md);
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #4a7a56;
+}

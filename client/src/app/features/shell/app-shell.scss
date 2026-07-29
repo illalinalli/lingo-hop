@@ -1,0 +1,99 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--lh-bg);
+}
+
+.header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: calc(10px + var(--lh-safe-top)) 16px 8px;
+}
+
+.round {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: #eae3da;
+  color: var(--lh-ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.round.placeholder {
+  background: transparent;
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--lh-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  padding: 0 18px calc(96px + var(--lh-safe-bottom));
+}
+
+.tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--lh-surface);
+  box-shadow: 0 -3px 16px rgba(80, 60, 40, 0.06);
+  padding: 10px 20px calc(12px + var(--lh-safe-bottom));
+  display: flex;
+  justify-content: space-around;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 14px;
+  text-decoration: none;
+  color: var(--lh-faint);
+  border-radius: var(--lh-radius-sm);
+}
+
+.tab.active {
+  color: var(--lh-green-deep);
+}
+
+.tab-icon {
+  font-size: 20px;
+  line-height: 1;
+  /* Grey out the emoji for inactive tabs so the active one reads clearly. */
+  filter: grayscale(1) opacity(0.55);
+}
+
+.tab.active .tab-icon {
+  filter: none;
+}
+
+.tab-label {
+  font-size: 11px;
+  font-weight: 800;
+}

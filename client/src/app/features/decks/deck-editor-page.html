@@ -1,0 +1,120 @@
+@if (store.isLoading()) {
+  <lh-spinner label="Loading deck" />
+} @else {
+  <section class="block">
+    <label class="field">
+      <span class="label">Deck name</span>
+      <input
+        class="input"
+        type="text"
+        maxlength="80"
+        autocomplete="off"
+        placeholder="Café basics"
+        [value]="title()"
+        (input)="onTitle($any($event.target).value)"
+      />
+    </label>
+
+    <span class="label">Badge</span>
+    <div class="icons" role="radiogroup" aria-label="Deck badge">
+      @for (choice of iconChoices; track choice) {
+        <button
+          type="button"
+          class="icon-choice"
+          [class.selected]="icon() === choice"
+          role="radio"
+          [attr.aria-checked]="icon() === choice"
+          [attr.aria-label]="'Badge ' + choice"
+          (click)="chooseIcon(choice)"
+        >
+          {{ choice }}
+        </button>
+      }
+    </div>
+
+    <button type="button" class="primary" [disabled]="!canSaveDeck()" (click)="saveDeck()">
+      {{ isCreateMode() ? 'Create deck' : 'Save changes' }}
+    </button>
+  </section>
+
+  @if (isCreateMode()) {
+    <p class="hint">Create the deck first, then add words to it.</p>
+  } @else {
+    @let deck = store.deck();
+
+    @if (deck) {
+      <section class="block stats">
+        <div class="stats-head">
+          <span class="stats-title">{{ deck.learnedCardCount }} of {{ deck.cardCount }} learned</span>
+          <span class="stats-value">{{ completionPercent() }}%</span>
+        </div>
+        <lh-progress-bar [value]="deck.completion" [height]="9" label="Deck progress" />
+
+        <div class="stats-actions">
+          <button type="button" class="study" [disabled]="!store.canStudy() || store.isBusy()" (click)="study()">
+            Study this deck
+          </button>
+          @if (deck.learnedCardCount > 0) {
+            <button type="button" class="ghost" [disabled]="store.isBusy()" (click)="resetProgress()">
+              Reset progress
+            </button>
+          }
+        </div>
+      </section>
+
+      <h2 class="section-title">
+        {{ editingCard() ? 'Edit card' : 'Add a card' }}
+      </h2>
+
+      @if (editingCard()) {
+        <lh-card-form
+          [initial]="editingDraft()"
+          submitLabel="Save card"
+          [cancellable]="true"
+          [disabled]="store.isBusy()"
+          (save)="saveCard($event)"
+          (cancel)="cancelEditing()"
+        />
+      } @else {
+        <lh-card-form [disabled]="store.isBusy()" (save)="addCard($event)" />
+      }
+
+      <h2 class="section-title">
+        Words
+        @if (deck.cardCount > 0) {
+          <span class="count">{{ deck.cardCount }}</span>
+        }
+      </h2>
+
+      @if (deck.cards.length === 0) {
+        <lh-empty-state
+          icon="📝"
+          title="No words yet"
+          message="Add your first word above and it will show up here, ready to study."
+        />
+      } @else {
+        <div class="cards">
+          @for (card of deck.cards; track card.id) {
+            <lh-card-row [card]="card" (edit)="startEditing($event)" (remove)="removeCard($event)" />
+          }
+        </div>
+      }
+
+      <button
+        type="button"
+        class="danger"
+        [class.armed]="confirmingDelete()"
+        [disabled]="store.isBusy()"
+        (click)="deleteDeck()"
+      >
+        {{ confirmingDelete() ? 'Tap again to delete' : 'Delete deck' }}
+      </button>
+    } @else {
+      <lh-empty-state
+        icon="🔍"
+        title="Deck not found"
+        message="This deck no longer exists. It may have been deleted."
+      />
+    }
+  }
+}

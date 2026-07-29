@@ -1,0 +1,139 @@
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+}
+
+.behind {
+  position: absolute;
+  inset: 0;
+  top: 46px;
+  transform: scale(0.92);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-surface-sunken);
+  opacity: 0.6;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  cursor: grab;
+  /* Let the card own horizontal gestures; the page keeps vertical scrolling. */
+  touch-action: pan-y;
+  perspective: 1200px;
+  animation: lh-card-in 0.28s ease;
+  /* Without this, swiping highlights the word instead of dragging the card. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.faces {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--lh-radius-xl);
+  box-shadow: var(--lh-shadow-raised);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.front {
+  background: var(--lh-surface);
+}
+
+.back {
+  background: #f0f6f1;
+  transform: rotateY(180deg);
+}
+
+.pos {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--lh-pink);
+  background: var(--lh-pink-soft);
+  padding: 5px 12px;
+  border-radius: 11px;
+}
+
+.term {
+  font-size: 40px;
+  font-weight: 900;
+  color: #2f2b27;
+  margin: 20px 0 6px;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  position: absolute;
+  bottom: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lh-faint);
+}
+
+.back-term {
+  font-size: 15px;
+  font-weight: 800;
+  color: #8a827a;
+}
+
+.translation {
+  font-size: 30px;
+  font-weight: 900;
+  color: #3a5c43;
+  margin: 8px 0 16px;
+  overflow-wrap: anywhere;
+}
+
+.example {
+  font-size: 15px;
+  font-weight: 600;
+  font-style: italic;
+  color: #6f766f;
+  line-height: 1.45;
+}
+
+.stamp {
+  position: absolute;
+  top: 22px;
+  font-size: 15px;
+  font-weight: 900;
+  border-radius: 10px;
+  padding: 4px 10px;
+  transition: opacity 0.1s;
+  pointer-events: none;
+}
+
+.stamp.dont {
+  left: 22px;
+  color: var(--lh-red-line);
+  border: 2.5px solid var(--lh-red-line);
+  transform: rotate(-14deg);
+}
+
+.stamp.know {
+  right: 22px;
+  color: var(--lh-green);
+  border: 2.5px solid var(--lh-green);
+  transform: rotate(14deg);
+}

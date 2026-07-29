@@ -1,0 +1,61 @@
+@if (store.isLoading()) {
+  <lh-spinner label="Building your lesson" />
+} @else if (store.hasFailed()) {
+  <lh-empty-state
+    icon="📝"
+    title="Nothing to study yet"
+    message="This deck has no cards, or it could not be loaded. Add a few words and come back."
+    actionLabel="Open deck"
+    (action)="openDeck()"
+  />
+} @else {
+  @let session = store.session();
+
+  @if (session) {
+    <section class="topbar">
+      <lh-progress-bar [value]="store.progress()" [height]="9" label="Lesson progress" />
+      <span class="counter">{{ store.cardNumber() }}/{{ store.totalCards() }}</span>
+      <lh-stat-pill icon="🔥" [value]="learner.streak()" [label]="learner.streak() + ' day streak'" />
+    </section>
+
+    @let card = store.card();
+
+    @if (card) {
+      <lh-flashcard
+        [card]="card"
+        [disabled]="store.isGrading()"
+        [revision]="store.revision()"
+        (graded)="onGraded($event)"
+        (flipped)="onFlip()"
+      />
+
+      <div class="grade-buttons">
+        <button
+          type="button"
+          class="dont"
+          [disabled]="store.isGrading()"
+          (click)="grade(false)"
+        >
+          <span aria-hidden="true">✕</span> Don't know
+        </button>
+        <button
+          type="button"
+          class="know"
+          [disabled]="store.isGrading()"
+          (click)="grade(true)"
+        >
+          <span aria-hidden="true">✓</span> Know
+        </button>
+      </div>
+    }
+
+    @if (store.isComplete()) {
+      <lh-lesson-summary
+        [session]="session"
+        [learner]="learner.profile()"
+        (finish)="finish()"
+        (studyAgain)="studyAgain()"
+      />
+    }
+  }
+}

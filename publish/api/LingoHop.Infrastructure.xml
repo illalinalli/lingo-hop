@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LingoHop.Infrastructure</name>
+    </assembly>
+    <members>
+        <member name="T:LingoHop.Infrastructure.DependencyInjection">
+            <summary>Wires the adapters behind the Application layer's ports.</summary>
+        </member>
+        <member name="F:LingoHop.Infrastructure.DependencyInjection.ConnectionStringName">
+            <summary>Name of the connection string read from configuration.</summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Events.DomainEventDispatcher">
+            <summary>
+            Resolves <see cref="T:LingoHop.Application.Abstractions.Events.IDomainEventHandler`1"/> implementations from the container and
+            invokes them. Reflection is confined to this one class.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Infrastructure.Events.DomainEventDispatcher.#ctor(System.IServiceProvider)">
+            <summary>
+            Resolves <see cref="T:LingoHop.Application.Abstractions.Events.IDomainEventHandler`1"/> implementations from the container and
+            invokes them. Reflection is confined to this one class.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Persistence.LingoHopDbContext">
+            <summary>
+            EF Core mapping of the three aggregates. Configuration lives in
+            <c>Persistence/Configurations</c>, one class per aggregate.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Infrastructure.Persistence.LingoHopDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{LingoHop.Infrastructure.Persistence.LingoHopDbContext})">
+            <summary>
+            EF Core mapping of the three aggregates. Configuration lives in
+            <c>Persistence/Configurations</c>, one class per aggregate.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Infrastructure.Persistence.LingoHopDbContext.Schema">
+            <summary>Schema all LingoHop tables live in.</summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Persistence.Migrations.InitialSchema">
+            <inheritdoc />
+        </member>
+        <member name="M:LingoHop.Infrastructure.Persistence.Migrations.InitialSchema.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LingoHop.Infrastructure.Persistence.Migrations.InitialSchema.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LingoHop.Infrastructure.Persistence.Migrations.InitialSchema.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LingoHop.Infrastructure.Persistence.Repositories.DeckRepository.FindByIdAsync(System.Guid,System.Threading.CancellationToken)">
+            <remarks>Cards come along automatically - the navigation is configured with AutoInclude.</remarks>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Persistence.UnitOfWork">
+            <summary>
+            Commits a use case. Domain events collected on the tracked aggregates are dispatched
+            <em>before</em> <c>SaveChanges</c>, so whatever the handlers change is written in the
+            same transaction as the change that raised the event.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Infrastructure.Persistence.UnitOfWork.#ctor(LingoHop.Infrastructure.Persistence.LingoHopDbContext,LingoHop.Application.Abstractions.Events.IDomainEventDispatcher)">
+            <summary>
+            Commits a use case. Domain events collected on the tracked aggregates are dispatched
+            <em>before</em> <c>SaveChanges</c>, so whatever the handlers change is written in the
+            same transaction as the change that raised the event.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Infrastructure.Persistence.UnitOfWork.MaxDispatchPasses">
+            <summary>Guards against a handler chain that keeps raising new events forever.</summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Randomisation.RandomCardShuffler">
+            <summary>Fisher-Yates shuffle over <see cref="P:System.Random.Shared"/>.</summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Telegram.TelegramInitDataValidator">
+            <summary>
+            Verifies a Telegram Mini App launch payload as described in
+            https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app.
+            <para>
+            The check is: build a newline-joined <c>key=value</c> string from every field except
+            <c>hash</c> and <c>signature</c>, sorted by key; HMAC-SHA256 it with a secret derived from
+            the bot token; compare against the supplied <c>hash</c>. Only Telegram and the bot owner
+            know the token, so a matching hash proves the payload was not forged or tampered with.
+            </para>
+            </summary>
+        </member>
+        <member name="M:LingoHop.Infrastructure.Telegram.TelegramInitDataValidator.#ctor(Microsoft.Extensions.Options.IOptions{LingoHop.Infrastructure.Telegram.TelegramOptions})">
+            <summary>
+            Verifies a Telegram Mini App launch payload as described in
+            https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app.
+            <para>
+            The check is: build a newline-joined <c>key=value</c> string from every field except
+            <c>hash</c> and <c>signature</c>, sorted by key; HMAC-SHA256 it with a secret derived from
+            the bot token; compare against the supplied <c>hash</c>. Only Telegram and the bot owner
+            know the token, so a matching hash proves the payload was not forged or tampered with.
+            </para>
+            </summary>
+        </member>
+        <member name="F:LingoHop.Infrastructure.Telegram.TelegramInitDataValidator.SecretKeySalt">
+            <summary>Fixed key Telegram specifies for deriving the signing secret.</summary>
+        </member>
+        <member name="F:LingoHop.Infrastructure.Telegram.TelegramInitDataValidator.ExcludedFields">
+            <summary>Fields that are part of the signature envelope rather than the signed data.</summary>
+        </member>
+        <member name="M:LingoHop.Infrastructure.Telegram.TelegramInitDataValidator.ParseFields(System.String)">
+            <summary>
+            Decodes the launch payload, which is a form-urlencoded query string.
+            Values must be compared in their decoded form.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Telegram.TelegramOptions">
+            <summary>
+            Bound from the <c>Telegram</c> configuration section.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Infrastructure.Telegram.TelegramOptions.BotToken">
+            <summary>
+            Bot token from @BotFather. Keep it out of source control - use an environment
+            variable (<c>Telegram__BotToken</c>) or a user-secret.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Infrastructure.Telegram.TelegramOptions.InitDataLifetime">
+            <summary>
+            How long a launch payload stays acceptable. Telegram recommends rejecting old
+            <c>initData</c> so a leaked payload cannot be replayed indefinitely.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Infrastructure.Telegram.TelegramOptions.AllowDevelopmentFallback">
+            <summary>
+            When <c>true</c>, requests without a valid <c>initData</c> are accepted and mapped to
+            <see cref="P:LingoHop.Infrastructure.Telegram.TelegramOptions.DevelopmentUserId"/>. Intended for running the Angular app against a local
+            API without a bot; refused outside the Development environment.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Infrastructure.Telegram.TelegramOptions.DevelopmentUserId">
+            <summary>Telegram id used by the development fallback.</summary>
+        </member>
+        <member name="P:LingoHop.Infrastructure.Telegram.TelegramOptions.DevelopmentUserFirstName">
+            <summary>Display name used by the development fallback.</summary>
+        </member>
+        <member name="T:LingoHop.Infrastructure.Time.SystemClock">
+            <summary>Wall clock in UTC. Streaks and daily goals use the UTC calendar day.</summary>
+        </member>
+    </members>
+</doc>

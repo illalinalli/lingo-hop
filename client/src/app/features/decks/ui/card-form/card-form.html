@@ -1,0 +1,58 @@
+<form class="card-form" (submit)="$event.preventDefault(); submit()">
+  <label class="field">
+    <span class="label">Word</span>
+    <input
+      class="input"
+      type="text"
+      maxlength="120"
+      autocomplete="off"
+      placeholder="Bill"
+      [value]="term()"
+      (input)="onTerm($any($event.target).value)"
+      required
+    />
+  </label>
+
+  <label class="field">
+    <span class="label">Translation</span>
+    <input
+      class="input"
+      type="text"
+      maxlength="200"
+      autocomplete="off"
+      placeholder="Счёт"
+      [value]="translation()"
+      (input)="onTranslation($any($event.target).value)"
+      required
+    />
+  </label>
+
+  <label class="field">
+    <span class="label">Part of speech</span>
+    <select class="input" [value]="partOfSpeech()" (change)="onPartOfSpeech($any($event.target).value)">
+      @for (part of partsOfSpeech; track part) {
+        <option [value]="part">{{ part === 'Unspecified' ? '—' : part }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="field">
+    <span class="label">Example <span class="optional">optional</span></span>
+    <input
+      class="input"
+      type="text"
+      maxlength="300"
+      autocomplete="off"
+      placeholder="Could we have the bill, please?"
+      [value]="example()"
+      (input)="onExample($any($event.target).value)"
+    />
+  </label>
+
+  <div class="actions">
+    @if (cancellable()) {
+      <button type="button" class="ghost" (click)="cancel.emit()">Cancel</button>
+    }
+    <button type="submit" class="save" [disabled]="!canSave()">{{ submitLabel() }}</button>
+  </div>
+</form>

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    Presentation layer / composition root: controllers, authentication, OpenAPI.
+    Referencing Infrastructure is allowed here (and only here) so that DI can be wired up.
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\LingoHop.Application\LingoHop.Application.csproj" />
+    <ProjectReference Include="..\LingoHop.Infrastructure\LingoHop.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+  </ItemGroup>
+
+</Project>
