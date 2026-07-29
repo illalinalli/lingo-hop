@@ -1,0 +1,523 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LingoHop.Application</name>
+    </assembly>
+    <members>
+        <member name="T:LingoHop.Application.Abstractions.Events.IDomainEventDispatcher">
+            <summary>
+            Routes domain events to their handlers. The EF Core unit of work calls this just before
+            committing, so handler side effects join the same transaction.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.Events.IDomainEventHandler`1">
+            <summary>
+            Reacts to a domain event. Handlers run inside the same unit of work as the change that
+            raised the event, so they may load and mutate other aggregates.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.ICardShuffler">
+            <summary>
+            Source of randomness for building a session queue. Injected so the Domain layer can
+            own the ordering policy while staying deterministic under test.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.IClock">
+            <summary>
+            Time as a dependency, so streak and daily-goal behaviour is testable.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Application.Abstractions.IClock.Today">
+            <summary>Current date in UTC - the calendar used for streaks and daily goals.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.ICurrentLearner">
+            <summary>
+            Resolves the <see cref="T:LingoHop.Domain.Users.User"/> aggregate behind the current request, creating it on the
+            first launch of the mini app. Scoped: the result is cached for the lifetime of a request.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.IUnitOfWork">
+            <summary>
+            Transaction boundary for a use case. Implemented by the EF Core adapter, which also
+            dispatches the domain events collected on the tracked aggregates before committing.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.Security.ICurrentTelegramUser">
+            <summary>
+            The authenticated caller of the current request. Implemented by the API layer on top of
+            the ASP.NET Core authentication result, so use cases never touch <c>HttpContext</c>.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Application.Abstractions.Security.ICurrentTelegramUser.Identity">
+            <summary>The verified Telegram identity.</summary>
+            <exception cref="T:System.InvalidOperationException">The request is not authenticated.</exception>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.Security.TelegramInitDataResult">
+            <summary>Result of checking a raw <c>initData</c> query string.</summary>
+            <param name="IsValid">Whether the HMAC signature and freshness checks passed.</param>
+            <param name="Identity">The verified user; <c>null</c> when invalid.</param>
+            <param name="Error">Reason for rejection, for logging.</param>
+        </member>
+        <member name="M:LingoHop.Application.Abstractions.Security.TelegramInitDataResult.#ctor(System.Boolean,LingoHop.Application.Abstractions.Security.TelegramIdentity,System.String)">
+            <summary>Result of checking a raw <c>initData</c> query string.</summary>
+            <param name="IsValid">Whether the HMAC signature and freshness checks passed.</param>
+            <param name="Identity">The verified user; <c>null</c> when invalid.</param>
+            <param name="Error">Reason for rejection, for logging.</param>
+        </member>
+        <member name="P:LingoHop.Application.Abstractions.Security.TelegramInitDataResult.IsValid">
+            <summary>Whether the HMAC signature and freshness checks passed.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Abstractions.Security.TelegramInitDataResult.Identity">
+            <summary>The verified user; <c>null</c> when invalid.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Abstractions.Security.TelegramInitDataResult.Error">
+            <summary>Reason for rejection, for logging.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.Security.ITelegramInitDataValidator">
+            <summary>
+            Verifies the <c>initData</c> string a Telegram Mini App sends on launch, proving the
+            request really comes from Telegram on behalf of the claimed user.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Abstractions.Security.TelegramIdentity">
+            <summary>
+            The verified identity carried by a Telegram Mini App launch payload.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Abstractions.Security.TelegramIdentity.#ctor(System.Int64,System.String,System.String,System.String,System.String)">
+            <summary>
+            The verified identity carried by a Telegram Mini App launch payload.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Common.Error">
+            <summary>A machine-readable failure returned by a use case.</summary>
+            <param name="Code">Stable dotted identifier, e.g. <c>deck.not_found</c>.</param>
+            <param name="Message">Human readable text safe to show in the mini app.</param>
+            <param name="Type">Category that decides the HTTP status code.</param>
+        </member>
+        <member name="M:LingoHop.Application.Common.Error.#ctor(System.String,System.String,LingoHop.Application.Common.ErrorType)">
+            <summary>A machine-readable failure returned by a use case.</summary>
+            <param name="Code">Stable dotted identifier, e.g. <c>deck.not_found</c>.</param>
+            <param name="Message">Human readable text safe to show in the mini app.</param>
+            <param name="Type">Category that decides the HTTP status code.</param>
+        </member>
+        <member name="P:LingoHop.Application.Common.Error.Code">
+            <summary>Stable dotted identifier, e.g. <c>deck.not_found</c>.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Common.Error.Message">
+            <summary>Human readable text safe to show in the mini app.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Common.Error.Type">
+            <summary>Category that decides the HTTP status code.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Common.ErrorType">
+            <summary>
+            Transport-agnostic failure category. The API layer is the only place that knows
+            how these map onto HTTP status codes.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Common.Result">
+            <summary>
+            Outcome of a use case. Expected failures (missing deck, duplicate word) travel as data
+            rather than exceptions, so controllers can map them to ProblemDetails without try/catch.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Common.Result`1">
+            <inheritdoc cref="T:LingoHop.Application.Common.Result"/>
+            <typeparam name="TValue">Payload produced on success.</typeparam>
+        </member>
+        <member name="P:LingoHop.Application.Common.Result`1.Value">
+            <summary>The payload. Only valid when <see cref="P:LingoHop.Application.Common.Result.IsSuccess"/> is <c>true</c>.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.DeckErrors">
+            <summary>Failures the deck use cases can return, in one place.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.DeckMapper">
+            <summary>Hand-written projections from the Deck aggregate to its transport shapes.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.Dtos.CardDraft">
+            <summary>Input shape for creating or editing a card.</summary>
+            <param name="Term">Front of the card - the word being learned.</param>
+            <param name="Translation">Back of the card - the meaning.</param>
+            <param name="PartOfSpeech">Optional grammar tag, e.g. <c>noun</c>.</param>
+            <param name="Example">Optional usage example.</param>
+        </member>
+        <member name="M:LingoHop.Application.Decks.Dtos.CardDraft.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>Input shape for creating or editing a card.</summary>
+            <param name="Term">Front of the card - the word being learned.</param>
+            <param name="Translation">Back of the card - the meaning.</param>
+            <param name="PartOfSpeech">Optional grammar tag, e.g. <c>noun</c>.</param>
+            <param name="Example">Optional usage example.</param>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDraft.Term">
+            <summary>Front of the card - the word being learned.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDraft.Translation">
+            <summary>Back of the card - the meaning.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDraft.PartOfSpeech">
+            <summary>Optional grammar tag, e.g. <c>noun</c>.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDraft.Example">
+            <summary>Optional usage example.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.Dtos.CardDto">
+            <summary>A flashcard together with its mastery counters.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDto.Term">
+            <summary>Front of the card - the word being learned.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDto.Translation">
+            <summary>Back of the card - the meaning.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDto.PartOfSpeech">
+            <summary>Grammar tag, e.g. <c>Noun</c>; <c>Unspecified</c> when not set.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.CardDto.Accuracy">
+            <summary>Share of correct answers, 0..1.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.Dtos.DeckDto">
+            <summary>A deck tile on the home screen.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.DeckDto.Icon">
+            <summary>Emoji badge shown on the tile.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.Dtos.DeckDto.Completion">
+            <summary>Share of learned cards, 0..1 - the green progress bar.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.Dtos.DeckDetailsDto">
+            <summary>A deck together with all of its cards.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.PartOfSpeechParser">
+            <summary>
+            Translates the free-form grammar tag from the API into the domain enum.
+            Blank input is valid and means <see cref="F:LingoHop.Domain.Decks.PartOfSpeech.Unspecified"/>.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.AddCardUseCase">
+            <summary>Adds a card to one of the learner's decks.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.AddCardUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock)">
+            <summary>Adds a card to one of the learner's decks.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.CreateDeckCommand">
+            <param name="Title">Deck name, up to 80 characters.</param>
+            <param name="Icon">Optional emoji badge; a book emoji is used when omitted.</param>
+            <param name="Cards">Optional cards to add straight away, so a deck can be created in one call.</param>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.CreateDeckCommand.#ctor(System.String,System.String,System.Collections.Generic.IReadOnlyList{LingoHop.Application.Decks.Dtos.CardDraft})">
+            <param name="Title">Deck name, up to 80 characters.</param>
+            <param name="Icon">Optional emoji badge; a book emoji is used when omitted.</param>
+            <param name="Cards">Optional cards to add straight away, so a deck can be created in one call.</param>
+        </member>
+        <member name="P:LingoHop.Application.Decks.UseCases.CreateDeckCommand.Title">
+            <summary>Deck name, up to 80 characters.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.UseCases.CreateDeckCommand.Icon">
+            <summary>Optional emoji badge; a book emoji is used when omitted.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.UseCases.CreateDeckCommand.Cards">
+            <summary>Optional cards to add straight away, so a deck can be created in one call.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.CreateDeckUseCase">
+            <summary>Creates a deck for the current learner, optionally pre-filled with cards.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.CreateDeckUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock)">
+            <summary>Creates a deck for the current learner, optionally pre-filled with cards.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.DeleteCardUseCase">
+            <summary>Removes a card from a deck.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.DeleteCardUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork)">
+            <summary>Removes a card from a deck.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.DeleteDeckUseCase">
+            <summary>Deletes a deck together with its cards and study history.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.DeleteDeckUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork)">
+            <summary>Deletes a deck together with its cards and study history.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.GetDeckUseCase">
+            <summary>A single deck with all of its cards.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.GetDeckUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository)">
+            <summary>A single deck with all of its cards.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.ListDecksUseCase">
+            <summary>All decks owned by the current learner, newest first.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.ListDecksUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository)">
+            <summary>All decks owned by the current learner, newest first.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.ResetDeckProgressUseCase">
+            <summary>Clears the mastery counters of every card so the deck can be learned again.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.ResetDeckProgressUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork)">
+            <summary>Clears the mastery counters of every card so the deck can be learned again.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.UpdateCardUseCase">
+            <summary>Edits the text of an existing card. Mastery counters are left untouched.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.UpdateCardUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork)">
+            <summary>Edits the text of an existing card. Mastery counters are left untouched.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.UpdateDeckCommand">
+            <param name="Title">New deck name.</param>
+            <param name="Icon">New emoji badge; omit to keep the current one.</param>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.UpdateDeckCommand.#ctor(System.String,System.String)">
+            <param name="Title">New deck name.</param>
+            <param name="Icon">New emoji badge; omit to keep the current one.</param>
+        </member>
+        <member name="P:LingoHop.Application.Decks.UseCases.UpdateDeckCommand.Title">
+            <summary>New deck name.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Decks.UseCases.UpdateDeckCommand.Icon">
+            <summary>New emoji badge; omit to keep the current one.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Decks.UseCases.UpdateDeckUseCase">
+            <summary>Renames a deck and/or changes its emoji.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Decks.UseCases.UpdateDeckUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork)">
+            <summary>Renames a deck and/or changes its emoji.</summary>
+        </member>
+        <member name="T:LingoHop.Application.DependencyInjection">
+            <summary>
+            Registers the Application layer. Everything is explicit rather than reflection-scanned,
+            so the full list of use cases is readable in one place.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.Dtos.StudyCardDto">
+            <summary>A card as presented during a lesson, with the grade given so far.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.Dtos.StudyCardDto.Position">
+            <summary>Zero-based position in the session queue.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.Dtos.StudyCardDto.Known">
+            <summary><c>null</c> while unanswered, otherwise the grade the learner gave.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.Dtos.StudySessionDto">
+            <summary>A lesson in progress or just finished.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.Dtos.StudySessionDto.Status">
+            <summary><c>InProgress</c>, <c>Completed</c> or <c>Abandoned</c>.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.Dtos.StudySessionDto.Progress">
+            <summary>Answered share of the queue, 0..1 - the top progress bar.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.Dtos.StudySessionDto.CurrentCardId">
+            <summary>Card to show next; <c>null</c> when the queue is finished.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.Dtos.StudySessionDto.ExperienceEarned">
+            <summary>XP granted on completion; 0 while the lesson is running.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.Dtos.StudySessionStateDto">
+            <summary>
+            Response shape for every study endpoint: the lesson plus the learner's freshly
+            recalculated stats, so the client never has to re-fetch the profile.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.EventHandlers.AwardSessionRewardHandler">
+            <summary>
+            Applies the reward of a finished lesson to the learner: XP, streak and today's card count.
+            The session aggregate never touches the user aggregate directly - it just says what happened.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.EventHandlers.AwardSessionRewardHandler.#ctor(LingoHop.Domain.Users.IUserRepository)">
+            <summary>
+            Applies the reward of a finished lesson to the learner: XP, streak and today's card count.
+            The session aggregate never touches the user aggregate directly - it just says what happened.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.EventHandlers.UpdateCardMasteryHandler">
+            <summary>
+            Keeps the Deck aggregate's mastery counters in step with the grades given during a lesson.
+            Runs inside the same unit of work, so the session answer and the card counters commit together.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.EventHandlers.UpdateCardMasteryHandler.#ctor(LingoHop.Domain.Decks.IDeckRepository)">
+            <summary>
+            Keeps the Deck aggregate's mastery counters in step with the grades given during a lesson.
+            Runs inside the same unit of work, so the session answer and the card counters commit together.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.StudyErrors">
+            <summary>Failures the study use cases can return, in one place.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.StudySessionMapper">
+            <summary>
+            Projects a session together with the deck it draws from - the queue lives in the session
+            aggregate while the words live in the deck aggregate, so both are needed to render a lesson.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.StudySessionStateAssembler">
+            <summary>
+            Builds the response every study endpoint returns: the lesson plus the learner's current
+            stats. Extracted so the five study use cases share one projection.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.StudySessionStateAssembler.#ctor(LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IClock)">
+            <summary>
+            Builds the response every study endpoint returns: the lesson plus the learner's current
+            stats. Extracted so the five study use cases share one projection.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.StudySessionStateAssembler.BuildAsync(LingoHop.Domain.Study.StudySession,LingoHop.Domain.Decks.Deck,LingoHop.Domain.Users.User,System.Threading.CancellationToken)">
+            <remarks>Call after the unit of work has been committed, so XP and streak are up to date.</remarks>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.AbandonStudySessionUseCase">
+            <summary>
+            Drops an unfinished lesson without a reward, so the next "Start" builds a fresh queue.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.AbandonStudySessionUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Study.IStudySessionRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock)">
+            <summary>
+            Drops an unfinished lesson without a reward, so the next "Start" builds a fresh queue.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.CompleteStudySessionUseCase">
+            <summary>
+            Finishes a lesson before the queue is exhausted, keeping the reward for what was answered.
+            A fully answered lesson completes on its own, so this is only needed for an early exit.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.CompleteStudySessionUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Study.IStudySessionRepository,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock,LingoHop.Application.Study.StudySessionStateAssembler)">
+            <summary>
+            Finishes a lesson before the queue is exhausted, keeping the reward for what was answered.
+            A fully answered lesson completes on its own, so this is only needed for an early exit.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.GetStudySessionUseCase">
+            <summary>Reads a lesson back - used to resume after the mini app was closed.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.GetStudySessionUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Study.IStudySessionRepository,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Study.StudySessionStateAssembler)">
+            <summary>Reads a lesson back - used to resume after the mini app was closed.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.GradeCardCommand">
+            <param name="CardId">Card being graded.</param>
+            <param name="Known">
+            <c>true</c> for "Know" (swipe right), <c>false</c> for "Don't know" (swipe left).
+            </param>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.GradeCardCommand.#ctor(System.Guid,System.Boolean)">
+            <param name="CardId">Card being graded.</param>
+            <param name="Known">
+            <c>true</c> for "Know" (swipe right), <c>false</c> for "Don't know" (swipe left).
+            </param>
+        </member>
+        <member name="P:LingoHop.Application.Study.UseCases.GradeCardCommand.CardId">
+            <summary>Card being graded.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.UseCases.GradeCardCommand.Known">
+            <summary>
+            <c>true</c> for "Know" (swipe right), <c>false</c> for "Don't know" (swipe left).
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.GradeCardUseCase">
+            <summary>
+            Records the learner's answer for one card. The session completes itself once the last
+            card in the queue has been graded, which is when XP and the streak are awarded.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.GradeCardUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Study.IStudySessionRepository,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock,LingoHop.Application.Study.StudySessionStateAssembler)">
+            <summary>
+            Records the learner's answer for one card. The session completes itself once the last
+            card in the queue has been graded, which is when XP and the streak are awarded.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.StartStudySessionCommand">
+            <param name="DeckId">Deck to study.</param>
+            <param name="CardLimit">
+            How many cards to queue. Defaults to the whole deck, capped at
+            <see cref="F:LingoHop.Application.Study.UseCases.StartStudySessionUseCase.MaxCardsPerSession"/>.
+            </param>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.StartStudySessionCommand.#ctor(System.Guid,System.Nullable{System.Int32})">
+            <param name="DeckId">Deck to study.</param>
+            <param name="CardLimit">
+            How many cards to queue. Defaults to the whole deck, capped at
+            <see cref="F:LingoHop.Application.Study.UseCases.StartStudySessionUseCase.MaxCardsPerSession"/>.
+            </param>
+        </member>
+        <member name="P:LingoHop.Application.Study.UseCases.StartStudySessionCommand.DeckId">
+            <summary>Deck to study.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Study.UseCases.StartStudySessionCommand.CardLimit">
+            <summary>
+            How many cards to queue. Defaults to the whole deck, capped at
+            <see cref="F:LingoHop.Application.Study.UseCases.StartStudySessionUseCase.MaxCardsPerSession"/>.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Study.UseCases.StartStudySessionUseCase">
+            <summary>
+            Opens a lesson. If the learner already has an unfinished lesson for this deck it is
+            resumed instead of starting a second one, so closing the mini app mid-lesson is safe.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Study.UseCases.StartStudySessionUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Domain.Study.IStudySessionRepository,LingoHop.Application.Abstractions.ICardShuffler,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock,LingoHop.Application.Study.StudySessionStateAssembler)">
+            <summary>
+            Opens a lesson. If the learner already has an unfinished lesson for this deck it is
+            resumed instead of starting a second one, so closing the mini app mid-lesson is safe.
+            </summary>
+        </member>
+        <member name="F:LingoHop.Application.Study.UseCases.StartStudySessionUseCase.MaxCardsPerSession">
+            <summary>Keeps one lesson short enough to finish in a sitting.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Users.CurrentLearner">
+            <summary>
+            Maps the verified Telegram identity of the request onto a <see cref="T:LingoHop.Domain.Users.User"/> aggregate,
+            registering it on the very first launch. Scoped, so one request resolves the user once.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Users.CurrentLearner.#ctor(LingoHop.Application.Abstractions.Security.ICurrentTelegramUser,LingoHop.Domain.Users.IUserRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock)">
+            <summary>
+            Maps the verified Telegram identity of the request onto a <see cref="T:LingoHop.Domain.Users.User"/> aggregate,
+            registering it on the very first launch. Scoped, so one request resolves the user once.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Users.Dtos.LearnerProfileDto">
+            <summary>
+            Everything the mini app header and reward sheet need about the current learner.
+            </summary>
+        </member>
+        <member name="P:LingoHop.Application.Users.Dtos.LearnerProfileDto.Level">
+            <summary>Level derived from XP, starting at 1.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Users.Dtos.LearnerProfileDto.LevelProgress">
+            <summary>Progress through the current level, 0..1.</summary>
+        </member>
+        <member name="P:LingoHop.Application.Users.Dtos.LearnerProfileDto.Streak">
+            <summary>Consecutive study days as of today - the 🔥 counter.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Users.LearnerProfileMapper">
+            <summary>Hand-written projection from the User aggregate to its transport shape.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Users.UseCases.GetLearnerProfileUseCase">
+            <summary>
+            Loads the current learner, registering them on first launch. This is the endpoint the
+            mini app calls on start-up, so it doubles as sign-up.
+            </summary>
+        </member>
+        <member name="M:LingoHop.Application.Users.UseCases.GetLearnerProfileUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock)">
+            <summary>
+            Loads the current learner, registering them on first launch. This is the endpoint the
+            mini app calls on start-up, so it doubles as sign-up.
+            </summary>
+        </member>
+        <member name="T:LingoHop.Application.Users.UseCases.UpdateDailyGoalCommand">
+            <param name="CardsPerDay">How many cards a day counts as "goal reached", 1..200.</param>
+        </member>
+        <member name="M:LingoHop.Application.Users.UseCases.UpdateDailyGoalCommand.#ctor(System.Int32)">
+            <param name="CardsPerDay">How many cards a day counts as "goal reached", 1..200.</param>
+        </member>
+        <member name="P:LingoHop.Application.Users.UseCases.UpdateDailyGoalCommand.CardsPerDay">
+            <summary>How many cards a day counts as "goal reached", 1..200.</summary>
+        </member>
+        <member name="T:LingoHop.Application.Users.UseCases.UpdateDailyGoalUseCase">
+            <summary>Changes how many cards a day the learner aims for.</summary>
+        </member>
+        <member name="M:LingoHop.Application.Users.UseCases.UpdateDailyGoalUseCase.#ctor(LingoHop.Application.Abstractions.ICurrentLearner,LingoHop.Domain.Decks.IDeckRepository,LingoHop.Application.Abstractions.IUnitOfWork,LingoHop.Application.Abstractions.IClock)">
+            <summary>Changes how many cards a day the learner aims for.</summary>
+        </member>
+    </members>
+</doc>

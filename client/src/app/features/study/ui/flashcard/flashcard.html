@@ -1,0 +1,47 @@
+@let item = card();
+
+<div class="stage">
+  <!-- Hint of the next card in the pile, straight from the design. -->
+  <div class="behind" aria-hidden="true"></div>
+
+  <div
+    class="card"
+    [style.transform]="transform()"
+    [style.transition]="transition()"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp()"
+    (pointercancel)="onPointerUp()"
+    (click)="onClick()"
+    (keydown.enter)="onClick()"
+    (keydown.space)="$event.preventDefault(); onClick()"
+    (keydown.arrowright)="commit(true)"
+    (keydown.arrowleft)="commit(false)"
+    tabindex="0"
+    role="button"
+    [attr.aria-label]="
+      'Card ' + item.term + '. Press Enter to reveal the translation, arrow right if you know it, arrow left if you do not.'
+    "
+  >
+    <div class="faces" [style.transform]="flipTransform()">
+      <div class="face front">
+        @if (partOfSpeechLabel()) {
+          <span class="pos">{{ partOfSpeechLabel() }}</span>
+        }
+        <div class="term">{{ item.term }}</div>
+        <div class="hint">tap to flip · swipe to grade</div>
+      </div>
+
+      <div class="face back">
+        <div class="back-term">{{ item.term }}</div>
+        <div class="translation">{{ item.translation }}</div>
+        @if (item.example) {
+          <div class="example">"{{ item.example }}"</div>
+        }
+      </div>
+    </div>
+
+    <div class="stamp dont" [style.opacity]="dontKnowOpacity()" aria-hidden="true">DON'T KNOW</div>
+    <div class="stamp know" [style.opacity]="knowOpacity()" aria-hidden="true">KNOW ✓</div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+/* ---------------------------------------------------------------------------
+   LingoHop design tokens, taken from the BunnyLingo mock-up.
+   Every colour, radius and shadow used by the app is declared here once.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Surfaces */
+  --lh-bg: #f4efe9;
+  --lh-surface: #ffffff;
+  --lh-surface-sunken: #efe9e1;
+  --lh-line: #ece7e0;
+
+  /* Text */
+  --lh-ink: #332f2b;
+  --lh-ink-soft: #5c554e;
+  --lh-muted: #9a938a;
+  --lh-faint: #b3aaa0;
+
+  /* Accents */
+  --lh-green: #7bab86;
+  --lh-green-deep: #5a8a66;
+  --lh-green-soft: #e6f1e8;
+  --lh-green-gradient: linear-gradient(180deg, #93bd9d, #7bab86);
+  --lh-green-bar: linear-gradient(90deg, #9cc9a6, #7bab86);
+
+  --lh-pink: #c67e97;
+  --lh-pink-soft: #fae3ea;
+
+  --lh-red: #c96a6a;
+  --lh-red-soft: #fbeaea;
+  --lh-red-line: #e07a7a;
+
+  --lh-gold: #c9a13f;
+  --lh-gold-soft: #fbf3e1;
+
+  /* Shape */
+  --lh-radius-sm: 12px;
+  --lh-radius-md: 18px;
+  --lh-radius-lg: 22px;
+  --lh-radius-xl: 28px;
+
+  --lh-shadow-card: 0 3px 10px rgba(80, 60, 40, 0.06);
+  --lh-shadow-raised: 0 14px 30px -12px rgba(80, 60, 40, 0.28);
+  --lh-shadow-green: 0 8px 18px -6px rgba(110, 150, 120, 0.7);
+
+  /* Safe areas, so the layout clears the Telegram chrome on notched phones. */
+  --lh-safe-top: env(safe-area-inset-top, 0px);
+  --lh-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--lh-bg);
+  color: var(--lh-ink);
+  font-family: Nunito, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* A mini app is a native-feeling surface: no rubber-band text selection or tap flash. */
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Visible focus for keyboard users; pointer users never see it. */
+:focus-visible {
+  outline: 2px solid var(--lh-green-deep);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+/* Shared animations from the mock-up. */
+@keyframes lh-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lh-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes lh-sheet-in {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+  55% {
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lh-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes lh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,93 @@
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--lh-surface);
+  border-radius: var(--lh-radius-md);
+  padding: 13px 14px;
+  box-shadow: var(--lh-shadow-card);
+  border-left: 4px solid transparent;
+}
+
+.row.learned {
+  border-left-color: var(--lh-green);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.term-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.term {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--lh-ink);
+}
+
+.pos {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--lh-pink);
+  background: var(--lh-pink-soft);
+  padding: 3px 8px;
+  border-radius: 9px;
+}
+
+.learned-chip {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--lh-green-deep);
+  background: var(--lh-green-soft);
+  padding: 3px 8px;
+  border-radius: 9px;
+}
+
+.translation {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lh-ink-soft);
+  margin-top: 3px;
+}
+
+.example {
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--lh-muted);
+  margin-top: 4px;
+}
+
+.stats {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--lh-faint);
+  margin-top: 6px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: none;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.icon:active {
+  background: var(--lh-surface-sunken);
+}

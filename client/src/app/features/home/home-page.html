@@ -1,0 +1,107 @@
+@if (store.isLoading()) {
+  <lh-spinner label="Loading your decks" />
+} @else {
+  @let profile = learner.profile();
+
+  @if (profile) {
+    <section class="greet">
+      <div class="who">
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <div>
+          <div class="hello">{{ greeting }}</div>
+          <div class="name">{{ profile.firstName }}</div>
+        </div>
+      </div>
+
+      <div class="pills">
+        <lh-stat-pill icon="🔥" [value]="profile.streak" [label]="profile.streak + ' day streak'" />
+        <lh-stat-pill icon="⭐" [value]="profile.level" [label]="'Level ' + profile.level" />
+      </div>
+    </section>
+
+    <!-- Stands in for the pet card in the design: the same at-a-glance progress panel. -->
+    <section class="panel">
+      <div class="panel-top">
+        <span class="level-chip">Level {{ profile.level }}</span>
+        <span class="xp">{{ profile.experience }} XP</span>
+      </div>
+
+      <div class="meter">
+        <div class="meter-head">
+          <span>To level {{ profile.level + 1 }}</span>
+          <span>{{ profile.experienceIntoLevel }} / {{ profile.experiencePerLevel }}</span>
+        </div>
+        <lh-progress-bar [value]="profile.levelProgress" [height]="9" label="Level progress" />
+      </div>
+
+      <div class="meter">
+        <div class="meter-head">
+          <span>Daily goal</span>
+          <span>{{ goalLabel() }}</span>
+        </div>
+        <lh-progress-bar [value]="learner.dailyGoalProgress()" [height]="9" label="Daily goal progress" />
+      </div>
+
+      @if (profile.dailyGoalCompleted) {
+        <div class="goal-done">
+          <span aria-hidden="true">✅</span>
+          <span>Daily goal completed</span>
+        </div>
+      } @else if (learner.cardsLeftToday() > 0) {
+        <div class="goal-todo">
+          {{ learner.cardsLeftToday() }} more
+          {{ learner.cardsLeftToday() === 1 ? 'card' : 'cards' }} to hit today's goal
+        </div>
+      }
+    </section>
+
+    @let featured = store.featuredDeck();
+
+    @if (featured) {
+      <h2 class="section-title">Continue learning</h2>
+      <lh-deck-tile [deck]="featured" (select)="study($event)" />
+
+      <button type="button" class="primary" (click)="study(featured.id)">
+        Start today's lesson
+      </button>
+    } @else if (store.hasDecks()) {
+      <h2 class="section-title">Your decks</h2>
+      <lh-empty-state
+        icon="📝"
+        title="Your deck is empty"
+        message="Add a few words to a deck and the lesson will be ready to go."
+        actionLabel="Add words"
+        (action)="openDeck(store.decks()[0].id)"
+      />
+    } @else {
+      <lh-empty-state
+        icon="🗂️"
+        title="No decks yet"
+        message="A deck is a set of words you want to remember. Create your first one to start learning."
+        actionLabel="Create a deck"
+        (action)="createDeck()"
+      />
+    }
+
+    @if (store.otherDecks().length > 0) {
+      <h2 class="section-title">Your decks</h2>
+      <div class="deck-list">
+        @for (deck of store.otherDecks(); track deck.id) {
+          <lh-deck-tile [deck]="deck" [showBadge]="false" (select)="openDeck($event)" />
+        }
+      </div>
+    }
+
+    @if (store.hasDecks()) {
+      <button type="button" class="secondary" (click)="createDeck()">+ New deck</button>
+    }
+  } @else if (store.hasFailed()) {
+    <lh-empty-state
+      icon="📡"
+      title="Could not load LingoHop"
+      message="We could not reach the server. Check your connection and try again."
+      actionLabel="Retry"
+      (action)="store.load()"
+    />
+  }
+}

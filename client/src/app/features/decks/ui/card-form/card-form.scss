@@ -1,0 +1,94 @@
+.card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--lh-surface);
+  border-radius: var(--lh-radius-lg);
+  padding: 16px;
+  box-shadow: var(--lh-shadow-card);
+}
+
+.field {
+  display: block;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--lh-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 700;
+  color: var(--lh-faint);
+}
+
+.input {
+  width: 100%;
+  border: 1.5px solid var(--lh-line);
+  border-radius: var(--lh-radius-sm);
+  background: #fdfbf9;
+  padding: 12px 13px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--lh-ink);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--lh-green);
+}
+
+.input::placeholder {
+  color: var(--lh-faint);
+  font-weight: 600;
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239a938a' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 36px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.save,
+.ghost {
+  flex: 1;
+  border: none;
+  border-radius: var(--lh-radius-sm);
+  padding: 14px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.save {
+  color: #fff;
+  background: var(--lh-green-gradient);
+  box-shadow: var(--lh-shadow-green);
+}
+
+.save:disabled {
+  background: var(--lh-line);
+  color: var(--lh-faint);
+  box-shadow: none;
+}
+
+.ghost {
+  background: var(--lh-surface-sunken);
+  color: var(--lh-ink-soft);
+}

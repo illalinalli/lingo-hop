@@ -1,0 +1,31 @@
+# Локальная база данных для разработки.
+# Продакшен разворачивается по docs/database-production.md, не этим файлом.
+#
+#   docker compose up -d db
+#
+# Если порт 5432 уже занят локальным PostgreSQL, поменяйте левую часть в ports
+# (например "5433:5432") и порт в appsettings.Development.json.
+
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: lingohop-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lingohop
+      POSTGRES_PASSWORD: lingohop
+      POSTGRES_DB: lingohop
+      # Быстрее стартует и совпадает с UTC-логикой streak-ов.
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - lingohop-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lingohop -d lingohop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  lingohop-db-data:

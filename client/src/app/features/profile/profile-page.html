@@ -1,0 +1,71 @@
+@if (isLoading()) {
+  <lh-spinner label="Loading your progress" />
+} @else {
+  @let profile = learner.profile();
+
+  @if (profile) {
+    <section class="hero">
+      <div class="name">{{ profile.displayName }}</div>
+      @if (profile.username) {
+        <div class="handle">&#64;{{ profile.username }}</div>
+      }
+
+      <div class="level-row">
+        <span class="level">Level {{ profile.level }}</span>
+        <span class="xp">{{ profile.experienceIntoLevel }} / {{ profile.experiencePerLevel }} XP</span>
+      </div>
+      <lh-progress-bar [value]="profile.levelProgress" [height]="10" label="Level progress" />
+    </section>
+
+    <div class="grid">
+      <div class="stat">
+        <div class="stat-value">{{ profile.streak }}</div>
+        <div class="stat-label">Day streak</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ profile.longestStreak }}</div>
+        <div class="stat-label">Best streak</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ profile.experience }}</div>
+        <div class="stat-label">Total XP</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ profile.deckCount }}</div>
+        <div class="stat-label">Decks</div>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Daily goal</h2>
+      <p class="card-text">
+        Cards to review each day. Today: <strong>{{ cardsTodayLabel() }}</strong>.
+      </p>
+
+      <lh-progress-bar [value]="learner.dailyGoalProgress()" [height]="9" label="Daily goal progress" />
+
+      <div class="chips" role="radiogroup" aria-label="Cards per day">
+        @for (choice of goalChoices; track choice) {
+          <button
+            type="button"
+            class="chip"
+            [class.selected]="profile.dailyGoalCards === choice"
+            role="radio"
+            [attr.aria-checked]="profile.dailyGoalCards === choice"
+            [disabled]="isSaving()"
+            (click)="chooseGoal(choice)"
+          >
+            {{ choice }}
+          </button>
+        }
+      </div>
+
+      @if (profile.dailyGoalCompleted) {
+        <div class="done">
+          <span aria-hidden="true">✅</span>
+          <span>Today's goal is done. Nice work.</span>
+        </div>
+      }
+    </section>
+  }
+}
