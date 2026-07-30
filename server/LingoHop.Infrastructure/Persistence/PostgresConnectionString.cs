@@ -48,13 +48,40 @@ internal static class PostgresConnectionString
             MaxPoolSize = 20,
         };
 
-        // Managed databases terminate TLS with their own CA, so demanding verification would
-        // fail on a perfectly good connection. Honour an explicit sslmode when the URL carries one.
-        if (!url.Contains("sslmode=", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.SslMode = SslMode.Prefer;
-        }
+        // Providers advertise their TLS requirement in the query string (Neon and Supabase both
+        // send sslmode=require). Prefer is the safe default: it encrypts when the server offers
+        // TLS, without demanding a CA we cannot verify against.
+        builder.SslMode = ReadSslMode(uri.Query);
 
         return builder.ConnectionString;
+    }
+
+    private static SslMode ReadSslMode(string query) =>
+        ReadParameter(query, "sslmode") switch
+        {
+            "disable" => SslMode.Disable,
+            "allow" => SslMode.Allow,
+            "require" => SslMode.Require,
+            "verify-ca" => SslMode.VerifyCA,
+            "verify-full" => SslMode.VerifyFull,
+            _ => SslMode.Prefer,
+        };
+
+    /// <summary>
+    /// Reads one query parameter. Deliberately narrow: handing arbitrary URL parameters to
+    /// <see cref="NpgsqlConnectionStringBuilder"/> throws on any keyword it does not know.
+    /// </summary>
+    private static string? ReadParameter(string query, string name)
+    {
+        foreach (var pair in query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var separator = pair.IndexOf('=');
+            if (separator > 0 && pair.AsSpan(0, separator).Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                return Uri.UnescapeDataString(pair[(separator + 1)..]).ToLowerInvariant();
+            }
+        }
+
+        return null;
     }
 }
