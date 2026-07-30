@@ -40,6 +40,12 @@ public sealed record LearnerProfileDto
 
     public required bool DailyGoalCompleted { get; init; }
 
+    /// <summary>
+    /// XP earned today that the daily goal has not released yet. It is added to
+    /// <see cref="Experience"/> the moment today's goal is reached.
+    /// </summary>
+    public required int PendingExperience { get; init; }
+
     public required int DeckCount { get; init; }
 
     public required DateTimeOffset CreatedAtUtc { get; init; }

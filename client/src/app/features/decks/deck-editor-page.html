@@ -45,7 +45,7 @@
     @if (deck) {
       <section class="block stats">
         <div class="stats-head">
-          <span class="stats-title">{{ deck.learnedCardCount }} of {{ deck.cardCount }} learned</span>
+          <span class="stats-title">{{ deck.knownCardCount }} of {{ deck.cardCount }} known</span>
           <span class="stats-value">{{ completionPercent() }}%</span>
         </div>
         <lh-progress-bar [value]="deck.completion" [height]="9" label="Deck progress" />
@@ -54,7 +54,7 @@
           <button type="button" class="study" [disabled]="!store.canStudy() || store.isBusy()" (click)="study()">
             Study this deck
           </button>
-          @if (deck.learnedCardCount > 0) {
+          @if (deck.knownCardCount > 0) {
             <button type="button" class="ghost" [disabled]="store.isBusy()" (click)="resetProgress()">
               Reset progress
             </button>

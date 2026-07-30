@@ -111,6 +111,40 @@ public sealed class StudySession : AggregateRoot
         }
     }
 
+    /// <summary>
+    /// Takes a card out of the queue because it no longer exists in the deck. Without this a
+    /// lesson stalls forever on a card the learner can never be shown: the queue is never
+    /// fully answered, so the reward is never granted and every later "Start" resumes the
+    /// same dead lesson. Finishes the lesson when nothing is left to answer.
+    /// </summary>
+    public void DiscardCard(Guid cardId, DateTimeOffset nowUtc)
+    {
+        if (!IsInProgress)
+        {
+            return;
+        }
+
+        var sessionCard = _cards.FirstOrDefault(card => card.CardId == cardId);
+        if (sessionCard is null)
+        {
+            return;
+        }
+
+        // Positions are only ever read in order, so the gap left behind is harmless.
+        _cards.Remove(sessionCard);
+
+        if (_cards.Count == 0)
+        {
+            Abandon(nowUtc);
+            return;
+        }
+
+        if (IsFullyAnswered)
+        {
+            Complete(nowUtc);
+        }
+    }
+
     /// <summary>Finishes the lesson early, keeping the reward for what was answered.</summary>
     public void Complete(DateTimeOffset nowUtc)
     {

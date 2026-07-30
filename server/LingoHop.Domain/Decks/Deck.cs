@@ -1,4 +1,5 @@
 using LingoHop.Domain.Common;
+using LingoHop.Domain.Decks.Events;
 
 namespace LingoHop.Domain.Decks;
 
@@ -45,8 +46,15 @@ public sealed class Deck : AggregateRoot
 
     public int LearnedCardCount => _cards.Count(card => card.Mastery.IsLearned);
 
-    /// <summary>Share of learned cards, 0..1 - drives the green progress bar on the deck tile.</summary>
-    public double Completion => _cards.Count == 0 ? 0d : (double)LearnedCardCount / _cards.Count;
+    /// <summary>Cards the learner knew the last time they came up.</summary>
+    public int KnownCardCount => _cards.Count(card => card.Mastery.IsKnown);
+
+    /// <summary>
+    /// Share of the deck the learner currently knows, 0..1 - drives the green progress bar on
+    /// the deck tile. Straight proportion of the cards in the deck: one card known out of two
+    /// reads 50%, and missing a card takes it back out of the count.
+    /// </summary>
+    public double Completion => _cards.Count == 0 ? 0d : (double)KnownCardCount / _cards.Count;
 
     public static Deck Create(Guid ownerId, DeckTitle title, DeckIcon icon, DateTimeOffset nowUtc) =>
         new(Guid.CreateVersion7(), ownerId, title, icon, nowUtc);
@@ -89,7 +97,13 @@ public sealed class Deck : AggregateRoot
         card.Update(term, translation, partOfSpeech, example);
     }
 
-    public void RemoveCard(Guid cardId) => _cards.Remove(RequireCard(cardId));
+    public void RemoveCard(Guid cardId, DateTimeOffset nowUtc)
+    {
+        _cards.Remove(RequireCard(cardId));
+
+        // An unfinished lesson may still be queueing this card; it has to hear about it.
+        Raise(new CardRemovedFromDeckDomainEvent(Id, OwnerId, cardId, nowUtc));
+    }
 
     /// <summary>Applies a graded answer to the card's mastery counters.</summary>
     public void RegisterReview(Guid cardId, bool known, DateTimeOffset reviewedAtUtc) =>

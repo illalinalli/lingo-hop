@@ -58,25 +58,48 @@ public sealed class User : AggregateRoot
     /// <summary>Refreshes the cached Telegram display data. Idempotent.</summary>
     public void RefreshProfile(TelegramProfile profile) => Profile = profile;
 
-    public void ChangeDailyGoal(int cardsPerDay)
+    public void ChangeDailyGoal(int cardsPerDay, DateOnly today)
     {
         DomainException.Require(cardsPerDay is > 0 and <= 200, "Daily goal must be between 1 and 200 cards.");
         DailyGoalCards = cardsPerDay;
+
+        // Lowering the goal can settle it there and then, so waiting XP must not get stuck.
+        CollectPendingExperienceIfGoalMet(today);
     }
 
     /// <summary>
-    /// Applied when a study session is completed: awards XP, advances the streak
-    /// and adds to today's card count.
+    /// Applied when a study session is completed: advances the streak, adds to today's card
+    /// count and banks the lesson's XP.
     /// </summary>
+    /// <remarks>
+    /// The daily goal is what XP rewards - not the individual lesson. Everything earned today
+    /// is held in <see cref="DailyProgress"/> and only credited once the goal is reached, so
+    /// hopping from deck to deck cannot collect XP without finishing the day's target.
+    /// </remarks>
     public void RegisterCompletedSession(int reviewedCards, int experienceEarned, DateOnly today)
     {
         DomainException.Require(reviewedCards >= 0, "Reviewed card count cannot be negative.");
 
-        Experience = Experience.Add(experienceEarned);
         Streak = Streak.Register(today);
-        DailyProgress = DailyProgress.Register(today, reviewedCards);
+        DailyProgress = DailyProgress.Register(today, reviewedCards, experienceEarned);
+
+        CollectPendingExperienceIfGoalMet(today);
     }
 
     public bool IsDailyGoalCompletedOn(DateOnly today) =>
         DailyProgress.CardsReviewedOn(today) >= DailyGoalCards;
+
+    /// <summary>XP earned today that the daily goal has not released yet.</summary>
+    public int PendingExperienceOn(DateOnly today) => DailyProgress.PendingExperienceOn(today);
+
+    private void CollectPendingExperienceIfGoalMet(DateOnly today)
+    {
+        if (!IsDailyGoalCompletedOn(today) || DailyProgress.PendingExperienceOn(today) == 0)
+        {
+            return;
+        }
+
+        Experience = Experience.Add(DailyProgress.PendingExperience);
+        DailyProgress = DailyProgress.WithoutPendingExperience();
+    }
 }

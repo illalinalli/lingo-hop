@@ -24,6 +24,11 @@ export interface LearnerProfile {
   readonly dailyGoalCards: number;
   readonly cardsReviewedToday: number;
   readonly dailyGoalCompleted: boolean;
+  /**
+   * XP earned today that today's goal has not released yet. XP is only credited when the
+   * daily goal is reached, so this is what the learner still has to unlock.
+   */
+  readonly pendingExperience: number;
 
   readonly deckCount: number;
   readonly createdAtUtc: Date;

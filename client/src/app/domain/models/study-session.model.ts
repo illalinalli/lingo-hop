@@ -48,12 +48,17 @@ export interface StudySessionState {
   readonly learner: LearnerProfile;
 }
 
-/** The card the learner should see now. */
+/**
+ * The card the learner should see now. Falls back to the first unanswered card in the queue:
+ * the server's pick can be a card that has since left the deck, and showing the next one
+ * beats showing an empty lesson.
+ */
 export function currentCard(session: StudySession): StudyCard | undefined {
-  if (session.currentCardId) {
-    return session.cards.find((card) => card.cardId === session.currentCardId);
-  }
-  return session.cards.find((card) => card.known === null);
+  const nominated = session.currentCardId
+    ? session.cards.find((card) => card.cardId === session.currentCardId)
+    : undefined;
+
+  return nominated ?? session.cards.find((card) => card.known === null);
 }
 
 export function isFinished(session: StudySession): boolean {

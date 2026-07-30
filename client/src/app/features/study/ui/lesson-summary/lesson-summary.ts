@@ -15,18 +15,21 @@ import { StudySession } from '../../../../domain/models/study-session.model';
         <h2 class="title" id="lh-summary-title">Lesson complete!</h2>
         <p class="subtitle">{{ subtitle() }}</p>
 
+        @let profile = learner();
+
         <div class="rewards">
+          <!-- XP is only credited once the daily goal is met, so the wording has to follow it. -->
           <div class="reward xp">
-            <div class="reward-value">+{{ result.experienceEarned }}</div>
-            <div class="reward-label">XP gained</div>
+            <div class="reward-value">
+              {{ isExperienceOnHold() ? '' : '+' }}{{ result.experienceEarned }}
+            </div>
+            <div class="reward-label">{{ isExperienceOnHold() ? 'XP on hold' : 'XP gained' }}</div>
           </div>
           <div class="reward known">
             <div class="reward-value">{{ result.knownCards }}/{{ result.answeredCards }}</div>
             <div class="reward-label">Words known</div>
           </div>
         </div>
-
-        @let profile = learner();
 
         @if (profile) {
           <div class="rows">
@@ -47,6 +50,10 @@ import { StudySession } from '../../../../domain/models/study-session.model';
               <div class="row">
                 <span aria-hidden="true">🎯</span>
                 <span>{{ profile.cardsReviewedToday }} / {{ profile.dailyGoalCards }} cards today</span>
+              </div>
+              <div class="row">
+                <span aria-hidden="true">🔒</span>
+                <span>{{ profile.pendingExperience }} XP unlock when today's goal is done</span>
               </div>
             }
           </div>
@@ -73,6 +80,12 @@ export class LessonSummary {
   readonly finish = output<void>();
 
   readonly studyAgain = output<void>();
+
+  /** True while this lesson's XP is banked but not yet credited - today's goal is still open. */
+  protected readonly isExperienceOnHold = computed(() => {
+    const profile = this.learner();
+    return profile !== null && !profile.dailyGoalCompleted;
+  });
 
   protected readonly subtitle = computed(() => {
     const result = this.session();

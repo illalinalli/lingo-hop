@@ -20,7 +20,7 @@ public sealed class UpdateDailyGoalUseCase(
         CancellationToken cancellationToken = default)
     {
         var user = await currentLearner.GetAsync(cancellationToken);
-        user.ChangeDailyGoal(command.CardsPerDay);
+        user.ChangeDailyGoal(command.CardsPerDay, clock.Today);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

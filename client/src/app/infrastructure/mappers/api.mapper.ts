@@ -43,6 +43,7 @@ export function toLearnerProfile(dto: LearnerProfileDto): LearnerProfile {
     dailyGoalCards: dto.dailyGoalCards,
     cardsReviewedToday: dto.cardsReviewedToday,
     dailyGoalCompleted: dto.dailyGoalCompleted,
+    pendingExperience: dto.pendingExperience,
     deckCount: dto.deckCount,
     createdAtUtc: date(dto.createdAtUtc),
   };
@@ -72,6 +73,7 @@ export function toDeck(dto: DeckDto): Deck {
     icon: dto.icon,
     cardCount: dto.cardCount,
     learnedCardCount: dto.learnedCardCount,
+    knownCardCount: dto.knownCardCount,
     completion: dto.completion,
     createdAtUtc: date(dto.createdAtUtc),
   };

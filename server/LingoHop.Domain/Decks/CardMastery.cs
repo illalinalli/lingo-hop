@@ -32,6 +32,13 @@ public sealed record CardMastery
 
     public bool IsNew => TimesSeen == 0;
 
+    /// <summary>
+    /// Whether the learner knew this card the last time it came up. This is what the deck's
+    /// progress bar counts, so a card starts counting from its first correct answer and stops
+    /// the moment it is missed.
+    /// </summary>
+    public bool IsKnown => CorrectStreak > 0;
+
     /// <summary>Share of correct answers, 0..1.</summary>
     public double Accuracy => TimesSeen == 0 ? 0d : (double)TimesKnown / TimesSeen;
 
