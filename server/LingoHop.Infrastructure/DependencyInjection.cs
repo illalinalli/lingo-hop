@@ -26,10 +26,10 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString(ConnectionStringName)
+        var connectionString = PostgresConnectionString.Resolve(configuration)
                                ?? throw new InvalidOperationException(
                                    $"Connection string '{ConnectionStringName}' is not configured. " +
-                                   "Set ConnectionStrings__LingoHopDatabase in the environment.");
+                                   "Set ConnectionStrings__LingoHopDatabase or DATABASE_URL in the environment.");
 
         services.AddDbContext<LingoHopDbContext>(options => options
             .UseNpgsql(connectionString, npgsql => npgsql
