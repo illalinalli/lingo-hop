@@ -197,32 +197,6 @@ dotnet ef migrations add ИмяМиграции --project server/LingoHop.Infras
 ```
 
 ---
-
-## Деплой
-
-Схема одинаковая на обеих платформах: веб-сервер отдаёт статику Angular и проксирует
-`/api` на Kestrel, который слушает только петлевой интерфейс. Клиент и API — на одном
-origin, поэтому CORS не нужен.
-
-**Windows Server (IIS):**
-
-- **[docs/database-production-windows.md](docs/database-production-windows.md)** —
-  PostgreSQL: установка, роли и права, `pg_hba` без `peer`, исключения антивируса,
-  тюнинг с учётом ограничения `shared_buffers` на Windows, TLS, firewall, бэкапы через
-  планировщик задач, миграции, чек-лист.
-- **[docs/deploy-production-windows.md](docs/deploy-production-windows.md)** —
-  IIS + Hosting Bundle, пул приложений, секреты в переменных пула, reverse proxy через
-  URL Rewrite + ARR, HTTPS через win-acme, регистрация в @BotFather, диагностика.
-
-**Linux (nginx + systemd):**
-
-- **[docs/database-production-linux.md](docs/database-production-linux.md)** — PostgreSQL:
-  установка из PGDG, роли и права, TLS, ufw, тюнинг, бэкапы systemd-таймером, миграции.
-- **[docs/deploy-production-linux.md](docs/deploy-production-linux.md)** — systemd-юнит,
-  nginx, certbot, переменные окружения, регистрация мини-приложения.
-
----
-
 ## Что не реализовано намеренно
 
 - Кролик-питомец, его настроения, кормление и магазин аксессуаров — по вашему запросу.
