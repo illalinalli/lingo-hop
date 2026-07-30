@@ -24,6 +24,7 @@ internal static class LearnerProfileMapper
         DailyGoalCards = user.DailyGoalCards,
         CardsReviewedToday = user.DailyProgress.CardsReviewedOn(today),
         DailyGoalCompleted = user.IsDailyGoalCompletedOn(today),
+        PendingExperience = user.PendingExperienceOn(today),
         DeckCount = deckCount,
         CreatedAtUtc = user.CreatedAtUtc,
     };

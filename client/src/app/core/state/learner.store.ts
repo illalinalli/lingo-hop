@@ -25,6 +25,9 @@ export class LearnerStore {
 
   readonly dailyGoalCompleted = computed(() => this.state()?.dailyGoalCompleted ?? false);
 
+  /** XP earned today that today's goal has not released yet. */
+  readonly pendingExperience = computed(() => this.state()?.pendingExperience ?? 0);
+
   readonly cardsLeftToday = computed(() => {
     const profile = this.state();
     return profile ? cardsLeftToday(profile) : 0;

@@ -48,6 +48,7 @@ export class DeckTile {
     if (deck.cardCount === 0) {
       return 'No cards yet - tap to add some';
     }
-    return `${deck.cardCount} ${deck.cardCount === 1 ? 'word' : 'words'} · ${deck.learnedCardCount} learned`;
+    // Counts what the bar counts, so the number and the percentage never disagree.
+    return `${deck.cardCount} ${deck.cardCount === 1 ? 'word' : 'words'} · ${deck.knownCardCount} known`;
   });
 }

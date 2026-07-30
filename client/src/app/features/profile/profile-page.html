@@ -65,6 +65,11 @@
           <span aria-hidden="true">✅</span>
           <span>Today's goal is done. Nice work.</span>
         </div>
+      } @else if (profile.pendingExperience > 0) {
+        <div class="done">
+          <span aria-hidden="true">🔒</span>
+          <span>{{ profile.pendingExperience }} XP unlock when you finish today's goal.</span>
+        </div>
       }
     </section>
   }

@@ -8,7 +8,8 @@ namespace LingoHop.Application.Decks.UseCases;
 public sealed class DeleteCardUseCase(
     ICurrentLearner currentLearner,
     IDeckRepository decks,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClock clock)
 {
     public async Task<Result> ExecuteAsync(
         Guid deckId,
@@ -27,7 +28,7 @@ public sealed class DeleteCardUseCase(
             return Result.Failure(DeckErrors.CardNotFound(cardId));
         }
 
-        deck.RemoveCard(cardId);
+        deck.RemoveCard(cardId, clock.UtcNow);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

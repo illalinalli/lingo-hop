@@ -56,6 +56,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         {
             progress.Property(p => p.Date).HasColumnName("daily_progress_date");
             progress.Property(p => p.CardsReviewed).HasColumnName("daily_progress_cards_reviewed");
+            progress.Property(p => p.PendingExperience).HasColumnName("daily_progress_pending_experience");
         });
 
         builder.Property(user => user.DailyGoalCards).HasColumnName("daily_goal_cards");

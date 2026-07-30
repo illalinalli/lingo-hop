@@ -1,11 +1,13 @@
 using LingoHop.Application.Abstractions;
 using LingoHop.Application.Abstractions.Events;
+using LingoHop.Application.Decks.EventHandlers;
 using LingoHop.Application.Decks.UseCases;
 using LingoHop.Application.Study;
 using LingoHop.Application.Study.EventHandlers;
 using LingoHop.Application.Study.UseCases;
 using LingoHop.Application.Users;
 using LingoHop.Application.Users.UseCases;
+using LingoHop.Domain.Decks.Events;
 using LingoHop.Domain.Study.Events;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -49,6 +51,8 @@ public static class DependencyInjection
         // Domain event handlers
         services.AddScoped<IDomainEventHandler<CardReviewedDomainEvent>, UpdateCardMasteryHandler>();
         services.AddScoped<IDomainEventHandler<StudySessionCompletedDomainEvent>, AwardSessionRewardHandler>();
+        services
+            .AddScoped<IDomainEventHandler<CardRemovedFromDeckDomainEvent>, DropRemovedCardFromLessonHandler>();
 
         return services;
     }

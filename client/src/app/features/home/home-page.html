@@ -51,6 +51,9 @@
         <div class="goal-todo">
           {{ learner.cardsLeftToday() }} more
           {{ learner.cardsLeftToday() === 1 ? 'card' : 'cards' }} to hit today's goal
+          @if (learner.pendingExperience() > 0) {
+            · {{ learner.pendingExperience() }} XP waiting
+          }
         </div>
       }
     </section>

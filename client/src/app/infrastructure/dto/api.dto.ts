@@ -24,6 +24,7 @@ export interface LearnerProfileDto {
   dailyGoalCards: number;
   cardsReviewedToday: number;
   dailyGoalCompleted: boolean;
+  pendingExperience: number;
   deckCount: number;
   createdAtUtc: string;
 }
@@ -49,6 +50,7 @@ export interface DeckDto {
   icon: string;
   cardCount: number;
   learnedCardCount: number;
+  knownCardCount: number;
   completion: number;
   createdAtUtc: string;
 }

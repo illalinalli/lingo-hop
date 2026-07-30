@@ -14,7 +14,10 @@ public record DeckDto
 
     public required int LearnedCardCount { get; init; }
 
-    /// <summary>Share of learned cards, 0..1 - the green progress bar.</summary>
+    /// <summary>Cards the learner knew the last time they came up - what the bar counts.</summary>
+    public required int KnownCardCount { get; init; }
+
+    /// <summary>Share of the deck's cards the learner knows, 0..1 - the green progress bar.</summary>
     public required double Completion { get; init; }
 
     public required DateTimeOffset CreatedAtUtc { get; init; }

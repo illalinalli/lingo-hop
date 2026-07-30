@@ -40,7 +40,9 @@ export interface Deck {
   readonly icon: string;
   readonly cardCount: number;
   readonly learnedCardCount: number;
-  /** Share of learned cards, 0..1. */
+  /** Cards the learner knew the last time they came up - what the bar counts. */
+  readonly knownCardCount: number;
+  /** Share of the deck's cards the learner knows, 0..1. */
   readonly completion: number;
   readonly createdAtUtc: Date;
 }

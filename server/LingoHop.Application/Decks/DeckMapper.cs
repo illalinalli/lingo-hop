@@ -13,6 +13,7 @@ internal static class DeckMapper
         Icon = deck.Icon.Value,
         CardCount = deck.CardCount,
         LearnedCardCount = deck.LearnedCardCount,
+        KnownCardCount = deck.KnownCardCount,
         Completion = deck.Completion,
         CreatedAtUtc = deck.CreatedAtUtc,
     };
@@ -24,6 +25,7 @@ internal static class DeckMapper
         Icon = deck.Icon.Value,
         CardCount = deck.CardCount,
         LearnedCardCount = deck.LearnedCardCount,
+        KnownCardCount = deck.KnownCardCount,
         Completion = deck.Completion,
         CreatedAtUtc = deck.CreatedAtUtc,
         Cards = [.. deck.Cards.OrderBy(card => card.CreatedAtUtc).Select(ToDto)],
