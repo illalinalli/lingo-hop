@@ -11,9 +11,9 @@ namespace LingoHop.Infrastructure.Telegram;
 /// https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app.
 /// <para>
 /// The check is: build a newline-joined <c>key=value</c> string from every field except
-/// <c>hash</c> and <c>signature</c>, sorted by key; HMAC-SHA256 it with a secret derived from
-/// the bot token; compare against the supplied <c>hash</c>. Only Telegram and the bot owner
-/// know the token, so a matching hash proves the payload was not forged or tampered with.
+/// <c>hash</c>, sorted by key; HMAC-SHA256 it with a secret derived from the bot token; compare
+/// against the supplied <c>hash</c>. Only Telegram and the bot owner know the token, so a
+/// matching hash proves the payload was not forged or tampered with.
 /// </para>
 /// </summary>
 internal sealed class TelegramInitDataValidator(IOptions<TelegramOptions> options) : ITelegramInitDataValidator
@@ -21,8 +21,15 @@ internal sealed class TelegramInitDataValidator(IOptions<TelegramOptions> option
     /// <summary>Fixed key Telegram specifies for deriving the signing secret.</summary>
     private const string SecretKeySalt = "WebAppData";
 
-    /// <summary>Fields that are part of the signature envelope rather than the signed data.</summary>
-    private static readonly string[] ExcludedFields = ["hash", "signature"];
+    /// <summary>
+    /// The only field kept out of the signed data - it carries the signature itself.
+    /// <para>
+    /// <c>signature</c> deliberately stays in: since Bot API 8.0 Telegram ships it inside every
+    /// launch payload and covers it with the hash. It is excluded only from the separate Ed25519
+    /// check a third party would run, which is not what happens here.
+    /// </para>
+    /// </summary>
+    private const string HashField = "hash";
 
     private readonly TelegramOptions _options = options.Value;
 
@@ -72,7 +79,7 @@ internal sealed class TelegramInitDataValidator(IOptions<TelegramOptions> option
         var dataCheckString = string.Join(
             '\n',
             fields
-                .Where(field => !ExcludedFields.Contains(field.Key))
+                .Where(field => field.Key != HashField)
                 .OrderBy(field => field.Key, StringComparer.Ordinal)
                 .Select(field => $"{field.Key}={field.Value}"));
 

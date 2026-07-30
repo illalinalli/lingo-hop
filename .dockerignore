@@ -1,0 +1,25 @@
+# Всё, что пересобирается внутри образа или не нужно сборке.
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+publish
+efbundle
+efbundle.exe
+
+.git
+.gitignore
+.idea
+.vs
+.claude
+docs
+*.md
+docker-compose.yml
+
+# Секреты не должны попадать в контекст сборки.
+.env
+.env.*
+**/appsettings.Local.json
+*.pfx
+*.key

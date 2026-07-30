@@ -15,6 +15,13 @@ const string CorsPolicyName = "LingoHopMiniApp";
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Managed hosts (Railway, Render, Fly) pick the port and pass it in; locally the
+// launch profile decides and PORT is absent.
+if (Environment.GetEnvironmentVariable("PORT") is { Length: > 0 } port)
+{
+    builder.WebHost.UseUrls($"http://+:{port}");
+}
+
 // ---------------------------------------------------------------------------
 // Composition root. Inner layers first, then the adapters, then the web host.
 // ---------------------------------------------------------------------------
@@ -71,6 +78,11 @@ EnsureProductionIsLockedDown(app);
 app.UseForwardedHeaders();
 app.UseExceptionHandler();
 
+// The published image carries the Angular build in wwwroot, so the mini app and the API
+// answer on one origin: nothing to configure for CORS and one thing to deploy.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 if (IsApiDocumentationEnabled(app))
 {
     app.MapOpenApi();
@@ -100,6 +112,13 @@ app.MapGet("/health/ready", async (LingoHopDbContext database, CancellationToken
             : Results.Json(new { status = "database-unreachable" }, statusCode: StatusCodes.Status503ServiceUnavailable))
     .AllowAnonymous()
     .ExcludeFromDescription();
+
+// An unknown API route is a 404, not the SPA shell - otherwise a typo in a client call
+// surfaces as an HTML parse error instead of a status code.
+app.MapFallback("/api/{**path}", () => Results.Problem(statusCode: StatusCodes.Status404NotFound));
+
+// Everything else is Angular's: client-side routing gets the shell.
+app.MapFallbackToFile("index.html");
 
 await ApplyMigrationsIfRequestedAsync(app);
 
