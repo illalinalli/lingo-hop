@@ -2,6 +2,8 @@
 
 A Telegram Mini App for learning English words with flashcards.
 
+**Try it live: [t.me/lingohop_bot/learn](https://t.me/lingohop_bot/learn)**
+
 The user opens the mini app from Telegram, creates decks, fills them with cards
 (word → translation) and goes through an "I remember / I don't" quiz with a progress
 bar, XP and a streak.
